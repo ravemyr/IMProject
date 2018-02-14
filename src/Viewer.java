@@ -10,21 +10,19 @@ public class Viewer {
 	private static JFrame myFrame;
 	public static void main(String[] args){
 		myOptionPane = new JOptionPane();
-		int selectedValue = myOptionPane.showConfirmDialog(null,"Run as Server?", "Welcome to Svammel!", JOptionPane.YES_NO_CANCEL_OPTION);
-		if(selectedValue == myOptionPane.YES_OPTION){
-			String inPort = myOptionPane.showInputDialog("Input port");
-			int port = Integer.parseInt(inPort);
-//			myCommunicator = new Communicator(true, port);
-		}
-		else if(selectedValue==myOptionPane.NO_OPTION){
-			String serverAdress = myOptionPane.showInputDialog("Input web adress");
-			String inPort = myOptionPane.showInputDialog("Input port");
-			int port = Integer.parseInt(inPort);
-//			myCommunicator = new Communicator(false, serverAdress, port);
-		}
-		else{
-			System.exit(0);
-		}
+//		int selectedValue = myOptionPane.showConfirmDialog(null,"Run as Server?", "Welcome to Svammel!", JOptionPane.YES_NO_CANCEL_OPTION);
+//		if(selectedValue == myOptionPane.YES_OPTION){
+//			String inPort = myOptionPane.showInputDialog("Input port");
+//			int port = Integer.parseInt(inPort);
+//		}
+//		else if(selectedValue==myOptionPane.NO_OPTION){
+//			String serverAdress = myOptionPane.showInputDialog("Input web adress");
+//			String inPort = myOptionPane.showInputDialog("Input port");
+//			int port = Integer.parseInt(inPort);
+//		}
+//		else{
+//			System.exit(0);
+//		}
 		myDisplayPanel = new DisplayPanel();
 		myChatPanel = new ChatPanel();
 		myFrame = new JFrame();

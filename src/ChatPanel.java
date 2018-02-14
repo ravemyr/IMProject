@@ -27,7 +27,7 @@ public class ChatPanel extends JPanel{
 		mySendButton = new SendButton();
 		mySettingsButton = new SettingsButton();
 		this.setVisible(true);
-		mySettingsButton.addActionListener(new ActionListener(){
+		mySendButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				String newText = myTextArea.getText();
 				myObservable.sendUpdate(newText);

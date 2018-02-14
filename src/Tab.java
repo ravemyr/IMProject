@@ -5,11 +5,13 @@ import java.util.Observer;
 import javax.swing.*;
 
 public class Tab {
+	private JPanel myPanel;
 	private ChatPanel myChatPanel;
 	private DisplayPanel myDisplayPanel;
 	private JOptionPane myOptionPane;
-	private JFrame myFrame;
+	private Client myClient;
 	private ChatObserver myChatObserver;
+	private ClientObserver myClientObserver;
 	
 	public static void main(String[] args){
 //		myOptionPane = new JOptionPane();
@@ -38,19 +40,32 @@ public class Tab {
 //		myFrame.setResizable(false);
 //		myChatPanel.getObservable().addObserver(myChatObserver);
 	}
+	
 	public Tab(){
+		myChatPanel = new ChatPanel();
+		myDisplayPanel = new DisplayPanel();
+		myPanel = new JPanel();
+		myChatObserver = new ChatObserver();
+		myClientObserver = new ClientObserver();
+		
+		myChatPanel.getObservable().addObserver(myChatObserver);
+		myClient.getObservable().addObserver(myClientObserver);
 		
 	}
+	
 	public JPanel getPanel(){
-		return new JPanel();
+		return myPanel;
 	}
-	public void close(){
+	
+	private class ChatObserver implements Observer{
 		
-	}
-	class ChatObserver implements Observer{
-		public ChatObserver(){
+		public void update(Observable a, Object b){
 			
 		}
+	}
+	
+	private class ClientObserver implements Observer{
+		
 		public void update(Observable a, Object b){
 			
 		}

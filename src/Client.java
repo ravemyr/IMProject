@@ -38,7 +38,7 @@ public class Client extends Thread{
     	return myObservable;
     }
     
-    private class ClientObservable extends Observable{
+    class ClientObservable extends Observable{
     	public void sendUpdate(String inString){
     		setChanged();
     		notifyObservers(inString);

@@ -1,11 +1,13 @@
 
 import java.net.*;
 import java.io.*;
+import java.util.*;
 
-public class Client {
+public class Client extends Thread{
     private Socket clientSocket;
     private PrintWriter out;
     private BufferedReader in;
+    private ClientObservable myObservable;
  
     public void startConnection(String ip, int port) 
     		throws IOException {
@@ -15,16 +17,27 @@ public class Client {
         		clientSocket.getInputStream()));
     }
  
-    public String sendMessage(String msg) throws IOException {
+    public void sendMessage(String msg) throws IOException {
         out.println(msg);
-        String resp = in.readLine();
-        return resp;
+//        String resp = in.readLine();
+//        return resp;
     }
+    
  
     public void stopConnection() throws IOException {
         in.close();
         out.close();
         clientSocket.close();
+    }
+    
+    public ClientObservable getObservable(){
+    	return myObservable;
+    }
+    
+    private class ClientObservable extends Observable{
+    	public ClientObservable(){
+    		
+    	}
     }
 
 }

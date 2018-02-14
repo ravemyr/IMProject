@@ -26,6 +26,7 @@ public class Viewer {
 		myDisplayPanel = new DisplayPanel();
 		myChatPanel = new ChatPanel();
 		myFrame = new JFrame();
+		myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		myFrame.getContentPane().add(myDisplayPanel);
 		myFrame.getContentPane().add(myChatPanel,"South");
 		myFrame.setSize(new Dimension(580,550));

@@ -14,6 +14,7 @@ public class ChatPanel extends JPanel{
 	private JOptionPane myOptionPane;
 	private Color color;
 	private String name;
+	private ChatObservable myObservable;
 	public ChatPanel(){
 		super();
 		
@@ -21,12 +22,14 @@ public class ChatPanel extends JPanel{
 		writeText.setPreferredSize(new Dimension(400,100));
 		JPanel bringThePane = new JPanel();
 		bringThePane.setLayout(new GridLayout(2,0,5,5));
+		myObservable = new ChatObservable();
 		mySendButton = new SendButton();
 		mySettingsButton = new SettingsButton();
 		this.setVisible(true);
 		mySettingsButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				String newText = writeText.getText();
+				myObservable.sendUpdate(newText);
 			}
 		});
 		this.setLayout(new GridLayout(1,2,10,10));
@@ -40,12 +43,13 @@ public class ChatPanel extends JPanel{
 //	public ChatPanel getInstance(){
 //	
 //	}
-	class chatObservable extends Observable{
-		public chatObservable(){
+	class ChatObservable extends Observable{
+		public ChatObservable(){
 			
 		}
-		public void notifyObservers(String myString){
-			
+		public void sendUpdate(String myString){
+			setChanged();
+			notifyObservers(myString);
 		}
 
 	}

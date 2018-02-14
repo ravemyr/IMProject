@@ -15,6 +15,10 @@ public class Client extends Thread{
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(new InputStreamReader(
         		clientSocket.getInputStream()));
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) {
+        	myObservable.sendUpdate(inputLine);
+        }
     }
  
     public void sendMessage(String msg) throws IOException {
@@ -35,9 +39,11 @@ public class Client extends Thread{
     }
     
     private class ClientObservable extends Observable{
-    	public ClientObservable(){
-    		
+    	public void sendUpdate(String inString){
+    		setChanged();
+    		notifyObservers(inString);
     	}
+    	
     }
 
 }

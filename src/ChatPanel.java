@@ -15,11 +15,12 @@ public class ChatPanel extends JPanel{
 	private Color color;
 	private String name;
 	private ChatObservable myObservable;
+	private JTextArea myTextArea;
 	public ChatPanel(){
 		super();
 		
-		JTextArea writeText = new JTextArea();
-		writeText.setPreferredSize(new Dimension(400,100));
+		myTextArea = new JTextArea();
+		myTextArea.setPreferredSize(new Dimension(400,100));
 		JPanel bringThePane = new JPanel();
 		bringThePane.setLayout(new GridLayout(2,0,5,5));
 		myObservable = new ChatObservable();
@@ -28,21 +29,19 @@ public class ChatPanel extends JPanel{
 		this.setVisible(true);
 		mySettingsButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				String newText = writeText.getText();
+				String newText = myTextArea.getText();
 				myObservable.sendUpdate(newText);
 			}
 		});
 		this.setLayout(new GridLayout(1,2,10,10));
-		this.add(writeText);
+		this.add(myTextArea);
 		bringThePane.add(mySendButton);
 		bringThePane.add(mySettingsButton);
 		this.add(bringThePane);
-//		this.add(mySendButton);
-//		this.add(mySettingsButton);
 	}
-//	public ChatPanel getInstance(){
-//	
-//	}
+	public ChatObservable getObservable(){
+		return myObservable;
+	}
 	class ChatObservable extends Observable{
 		public ChatObservable(){
 			

@@ -8,6 +8,10 @@ public class Client extends Thread{
     private PrintWriter out;
     private BufferedReader in;
     private ClientObservable myObservable;
+    
+    public Client(){
+    	myObservable = new ClientObservable();
+    }
  
     public void startConnection(String ip, int port) 
     		throws IOException {

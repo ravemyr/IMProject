@@ -12,17 +12,28 @@ public class Client extends Thread{
     public Client(){
     	myObservable = new ClientObservable();
     }
+    
+    public void run() {
+        try {
+			out = new PrintWriter(clientSocket.getOutputStream(), true);
+	        in = new BufferedReader(new InputStreamReader(
+	        		clientSocket.getInputStream()));
+	        String inputLine;
+	        while ((inputLine = in.readLine()) != null) {
+	        	myObservable.sendUpdate(inputLine);
+	        }
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
  
-    public void startConnection(String ip, int port) 
-    		throws IOException {
-        clientSocket = new Socket(ip, port);
-        out = new PrintWriter(clientSocket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(
-        		clientSocket.getInputStream()));
-        String inputLine;
-        while ((inputLine = in.readLine()) != null) {
-        	myObservable.sendUpdate(inputLine);
-        }
+    public void startConnection(String ip, int port){
+        try {
+			clientSocket = new Socket(ip, port);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        this.start();
     }
  
     public void sendMessage(String msg) throws IOException {

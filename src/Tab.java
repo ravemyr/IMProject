@@ -1,4 +1,5 @@
 import java.awt.Dimension;
+import java.io.IOException;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -47,6 +48,8 @@ public class Tab {
 		myDisplayPanel = new DisplayPanel();
 		myClient = new Client();
 		
+		myClient.startConnection("10.0.0.144", 4000);
+		
 		myPanel = new JPanel();
 		myPanel.add(myDisplayPanel);
 		myPanel.add(myChatPanel);
@@ -57,7 +60,6 @@ public class Tab {
 		
 		myChatPanel.getObservable().addObserver(myChatObserver);
 		myClient.getObservable().addObserver(myClientObserver);
-		
 	}
 	
 	public JPanel getPanel(){
@@ -79,7 +81,12 @@ public class Tab {
 	private class ClientObserver implements Observer{
 		
 		public void update(Observable a, Object str){
-			
+			String tempString = (String) str;
+			try {
+				myDisplayPanel.display(tempString);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

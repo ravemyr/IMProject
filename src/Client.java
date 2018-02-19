@@ -14,7 +14,6 @@ public class Client extends Thread{
     }
     
     public void run() {
-    	System.out.println("Client started");
         try {
 			out = new PrintWriter(clientSocket.getOutputStream(), true);
 	        in = new BufferedReader(new InputStreamReader(
@@ -31,7 +30,6 @@ public class Client extends Thread{
  
     public void startConnection(String ip, int port){
         try {
-        	System.out.println("Client connected to Server");
 			clientSocket = new Socket(ip, port);
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -20,11 +20,8 @@ public class Client extends Thread{
 	        in = new BufferedReader(new InputStreamReader(
 	        		clientSocket.getInputStream()));
 	        String inputLine;
-//	        while ((inputLine = in.readLine()) != null) {
 	        while (true) {
-	        	System.out.println("Client attempts to get message");
 	        	inputLine = in.readLine();
-	        	System.out.println("Cliend got message: " + inputLine);
 	        	myObservable.sendUpdate(inputLine);
 	        }
 		} catch (IOException e) {
@@ -44,8 +41,6 @@ public class Client extends Thread{
  
     public void sendMessage(String msg) throws IOException {
         out.println(msg);
-//        String resp = in.readLine();
-//        return resp;
     }
     
  

@@ -48,23 +48,10 @@ public class Server {
 	              new InputStreamReader(clientSocket.getInputStream()));
 	             
 	            String inputLine;
-//	            while ((inputLine = in.readLine()) != null) {
 	            while (true) {
-	            	System.out.println("Sup2");
 	            	inputLine = in.readLine();
-	            	System.out.println(inputLine + "END");
 	            	distributeMessage(inputLine);
-	            	System.out.println("Sup");
-//	                if (".".equals(inputLine)) {
-//	                    out.println("bye");
-//	                    break;
-//	                }
-//	                out.println(inputLine);
 	            }
-	 
-//	            in.close();
-//	            out.close();
-//	            clientSocket.close();
         	}
         	catch(Exception e){
         		e.printStackTrace();

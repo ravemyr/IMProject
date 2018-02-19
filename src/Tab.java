@@ -84,7 +84,8 @@ public class Tab {
 			String tempString = (String) str;
 			try {
 				myDisplayPanel.display(tempString);
-			} catch (BadLocationException e) {
+				myClient.sendMessage(tempString);
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}

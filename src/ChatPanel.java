@@ -1,13 +1,20 @@
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
-import java.awt.TextField;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Observable;
+/**
+ * ChatPanel
+ * 
+ * Created 2018-02-19
+ */
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 import Buttons.*;
+
+/**
+ * Class for handling input from the user
+ * @author Gustav
+ *
+ */
 public class ChatPanel extends JPanel{
 	private SendButton mySendButton;
 	private SettingsButton mySettingsButton;
@@ -16,36 +23,55 @@ public class ChatPanel extends JPanel{
 	private String name;
 	private ChatObservable myObservable;
 	private JTextArea myTextArea;
+	
+	/**
+	 * Constructor
+	 */
 	public ChatPanel(){
-		super();
-		
+		/* Fields */
+		this.setVisible(true);
 		myTextArea = new JTextArea();
-		myTextArea.setPreferredSize(new Dimension(400,100));
-		JPanel bringThePane = new JPanel();
-		bringThePane.setLayout(new GridLayout(2,0,5,5));
 		myObservable = new ChatObservable();
 		mySendButton = new SendButton();
-		mySettingsButton = new SettingsButton();
-		this.setVisible(true);
+		mySettingsButton = new SettingsButton();	
+		
+		/* Add listeners */
 		mySendButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				String newText = myTextArea.getText();
 				myObservable.sendUpdate(newText);
 			}
-		});
-		this.setLayout(new GridLayout(1,2,10,10));
+		});	
+		
+		/* Make UI */
+		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.add(myTextArea);
-		bringThePane.add(mySendButton);
+		JPanel bringThePane = new JPanel();
+		bringThePane.setLayout(new GridLayout(1, 2, 10, 5));
 		bringThePane.add(mySettingsButton);
+		bringThePane.add(mySendButton);
 		this.add(bringThePane);
 	}
+	
+	/**
+	 * Method for returning the observable object
+	 * @return
+	 */
 	public ChatObservable getObservable(){
 		return myObservable;
 	}
+	
+	/**
+	 * Class for updating observers to send message input by the user
+	 * @author Gustav
+	 *
+	 */
 	class ChatObservable extends Observable{
-		public ChatObservable(){
-			
-		}
+		
+		/**
+		 * Update observers with string to send
+		 * @param myString
+		 */
 		public void sendUpdate(String myString){
 			setChanged();
 			notifyObservers(myString);

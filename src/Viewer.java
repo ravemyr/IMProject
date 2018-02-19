@@ -1,10 +1,18 @@
-import java.awt.Dimension;
-import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
+/**
+ * Viewer
+ * 
+ * Created 2018-02-19
+ */
 
+import java.awt.Dimension;
+import java.util.*;
 import javax.swing.*;
 
+/**
+ * Class for displaying all parts of the program in a window
+ * @author Gustav
+ *
+ */
 public class Viewer {
 	private static JFrame myFrame;
 	private static JTabbedPane myTabPane;

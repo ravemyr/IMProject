@@ -1,23 +1,43 @@
-import java.awt.Color;
-import java.awt.Dimension;
+/**
+ * DisplayPanel
+ * 
+ * Created 2018-02-19
+ */
+
+import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
+/**
+ * Class for displaying text/chat
+ * @author Gustav
+ *
+ */
 public class DisplayPanel extends JPanel {
 	private JTextPane myTextPane;
-	StyledDocument myDoc;
-
+	private StyledDocument myDoc;
+	
+	/**
+	 * Constructor
+	 */
 	public DisplayPanel(){
-		super();
 		myTextPane = new JTextPane();
-		myTextPane.setPreferredSize(new Dimension(500,400));
+//		myTextPane.setPreferredSize(new Dimension(500,400));
 		myTextPane.setEditable(false);
+		
+		this.setLayout(new GridLayout(1,1,0,0));
 		this.add(myTextPane);
 		this.setVisible(true);
+		
 		myDoc = myTextPane.getStyledDocument();
 	}
 	
+	/**
+	 * Method for displaying textstring in the panel
+	 * @param str
+	 * @throws BadLocationException
+	 */
 	public void display(String str) throws BadLocationException{
 		SimpleAttributeSet keyWord = new SimpleAttributeSet();
 		StyleConstants.setForeground(keyWord, Color.RED);

@@ -54,6 +54,10 @@ public class Client extends Thread{
     }
     
     class ClientObservable extends Observable{
+    	public ClientObservable() {
+    		
+    	}
+    	
     	public void sendUpdate(String inString){
     		setChanged();
     		notifyObservers(inString);

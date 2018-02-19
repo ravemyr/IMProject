@@ -48,6 +48,7 @@ public class Tab {
 		myDisplayPanel = new DisplayPanel();
 		myClient = new Client();
 		
+		System.out.println("jells");
 		myClient.startConnection("10.0.0.144", 4000);
 		
 		myPanel = new JPanel();
@@ -72,7 +73,8 @@ public class Tab {
 			String tempString = (String) str;
 			try {
 				myDisplayPanel.display(tempString);
-			} catch (BadLocationException e) {
+				myClient.sendMessage(tempString);
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
@@ -83,8 +85,8 @@ public class Tab {
 		public void update(Observable a, Object str){
 			String tempString = (String) str;
 			try {
+				System.out.println(tempString + "update");
 				myDisplayPanel.display(tempString);
-				myClient.sendMessage(tempString);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

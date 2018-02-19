@@ -14,12 +14,17 @@ public class Client extends Thread{
     }
     
     public void run() {
+    	System.out.println("Client started");
         try {
 			out = new PrintWriter(clientSocket.getOutputStream(), true);
 	        in = new BufferedReader(new InputStreamReader(
 	        		clientSocket.getInputStream()));
 	        String inputLine;
-	        while ((inputLine = in.readLine()) != null) {
+//	        while ((inputLine = in.readLine()) != null) {
+	        while (true) {
+	        	System.out.println("Client attempts to get message");
+	        	inputLine = in.readLine();
+	        	System.out.println("Cliend got message: " + inputLine);
 	        	myObservable.sendUpdate(inputLine);
 	        }
 		} catch (IOException e) {
@@ -29,6 +34,7 @@ public class Client extends Thread{
  
     public void startConnection(String ip, int port){
         try {
+        	System.out.println("Client connected to Server");
 			clientSocket = new Socket(ip, port);
 		} catch (IOException e) {
 			e.printStackTrace();

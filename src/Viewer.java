@@ -19,7 +19,7 @@ public class Viewer {
 		myFrame.getContentPane().add(myTabPane);
 		myFrame.setVisible(true);
 		myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		myFrame.setSize(new Dimension(700,650));
+		myFrame.setSize(new Dimension(1000,650));
 
 	}
 }

@@ -6,13 +6,13 @@ import java.io.*;
 
 public class Tester {
 	public static void main(String[] args){
-		Client client1 = new Client();
-		try {
-			client1.startConnection("10.0.0.144", 4000);
-			client1.sendMessage("send");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+//		Client client1 = new Client();
+//		try {
+//			client1.startConnection("10.0.0.144", 4000);
+//			client1.sendMessage("send");
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
 		
 //		InetAddress addr;
 //		try {

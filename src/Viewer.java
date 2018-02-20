@@ -28,5 +28,6 @@ public class Viewer {
 		myFrame.setVisible(true);
 		myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		myFrame.setSize(new Dimension(550,850));
+		myFrame.setResizable(false);
 	}
 }

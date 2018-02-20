@@ -33,7 +33,7 @@ public class Tab {
 		myDisplayPanel = new DisplayPanel();
 		myClient = new Client();
 		
-		myClient.startConnection("10.0.0.144", 4000);
+		myClient.startConnection("130.229.142.143", 4000);
 		
 		myPanel = new JPanel();
 //		myPanel.setLayout(new GridLayout(2,1,10,10));

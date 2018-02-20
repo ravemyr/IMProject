@@ -23,10 +23,10 @@ public class DisplayPanel extends JPanel {
 	 */
 	public DisplayPanel(){
 		myTextPane = new JTextPane();
-//		myTextPane.setPreferredSize(new Dimension(500,400));
+		myTextPane.setPreferredSize(new Dimension(520,550));
 		myTextPane.setEditable(false);
 		
-		this.setLayout(new GridLayout(1,1,0,0));
+//		this.setLayout(new GridLayout(1,1,0,0));
 		this.add(myTextPane);
 		this.setVisible(true);
 		
@@ -34,16 +34,17 @@ public class DisplayPanel extends JPanel {
 	}
 	
 	/**
-	 * Method for displaying textstring in the panel
+	 * Method for displaying textstring in the panel, keyWord can be null
 	 * @param str
 	 * @throws BadLocationException
 	 */
-	public void display(String str) throws BadLocationException{
-		SimpleAttributeSet keyWord = new SimpleAttributeSet();
-		StyleConstants.setForeground(keyWord, Color.RED);
-		StyleConstants.setBackground(keyWord, Color.YELLOW);
-		StyleConstants.setBold(keyWord, true);
+	public void display(String str, SimpleAttributeSet keyWord)
+			throws BadLocationException{
+//		SimpleAttributeSet keyWord = new SimpleAttributeSet();
+//		StyleConstants.setForeground(keyWord, Color.RED);
+//		StyleConstants.setBackground(keyWord, Color.YELLOW);
+//		StyleConstants.setBold(keyWord, true);
 		
-		myDoc.insertString(myDoc.getLength(), str, null);
+		myDoc.insertString(myDoc.getLength(), str, keyWord);
 	}
 }

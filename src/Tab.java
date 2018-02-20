@@ -36,7 +36,8 @@ public class Tab {
 		myClient.startConnection("10.0.0.144", 4000);
 		
 		myPanel = new JPanel();
-		myPanel.setLayout(new GridLayout(2,1,10,10));
+//		myPanel.setLayout(new GridLayout(2,1,10,10));
+		myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
 		myPanel.add(myDisplayPanel);
 		myPanel.add(myChatPanel);
 		
@@ -69,7 +70,7 @@ public class Tab {
 		public void update(Observable a, Object str){
 			String tempString = (String) str;
 			try {
-				myDisplayPanel.display(tempString);
+				myDisplayPanel.display(tempString, myChatPanel.getKeyWord());
 				myClient.sendMessage(tempString);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -89,7 +90,7 @@ public class Tab {
 		public void update(Observable a, Object str){
 			String tempString = (String) str;
 			try {
-				myDisplayPanel.display(tempString);
+				myDisplayPanel.display(tempString, myChatPanel.getKeyWord());     /* THIS SHOULD BE KEYWORD FROM ELSEWHERE */
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

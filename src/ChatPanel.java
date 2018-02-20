@@ -8,6 +8,9 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.text.*;
+
 import Buttons.*;
 
 /**
@@ -18,9 +21,10 @@ import Buttons.*;
 public class ChatPanel extends JPanel{
 	private SendButton mySendButton;
 	private SettingsButton mySettingsButton;
-	private JOptionPane myOptionPane;
-	private Color color;
-	private String name;
+	private Color myColor;
+	private SimpleAttributeSet keyWord;
+	private String myName;
+	private ColorChooser myColorChooser;
 	private ChatObservable myObservable;
 	private JTextArea myTextArea;
 	
@@ -30,10 +34,14 @@ public class ChatPanel extends JPanel{
 	public ChatPanel(){
 		/* Fields */
 		this.setVisible(true);
+		myColor = Color.BLACK;
+		myColorChooser = new ColorChooser(myColor);
+		keyWord = new SimpleAttributeSet();
+		StyleConstants.setForeground(keyWord, myColor);
 		myTextArea = new JTextArea();
 		myObservable = new ChatObservable();
 		mySendButton = new SendButton();
-		mySettingsButton = new SettingsButton();	
+		mySettingsButton = new SettingsButton();
 		
 		/* Add listeners */
 		mySendButton.addActionListener(new ActionListener(){
@@ -41,7 +49,14 @@ public class ChatPanel extends JPanel{
 				String newText = myTextArea.getText();
 				myObservable.sendUpdate(newText);
 			}
-		});	
+		});
+		mySettingsButton.addActionListener(new ActionListener(){			
+			public void actionPerformed(ActionEvent e){
+				JFrame tempFrame = new JFrame();
+				tempFrame.setVisible(true);
+				tempFrame.add(myColorChooser);
+			}
+		});
 		
 		/* Make UI */
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -51,6 +66,10 @@ public class ChatPanel extends JPanel{
 		bringThePane.add(mySettingsButton);
 		bringThePane.add(mySendButton);
 		this.add(bringThePane);
+	}
+	
+	public SimpleAttributeSet getKeyWord() {
+		return keyWord;
 	}
 	
 	/**
@@ -76,6 +95,21 @@ public class ChatPanel extends JPanel{
 			setChanged();
 			notifyObservers(myString);
 		}
-
+	}
+	
+	private class ColorChooser extends JPanel implements ChangeListener{
+		private JColorChooser myJColorChooser;
+		
+		public ColorChooser(Color color) {
+			this.setVisible(true);
+			myJColorChooser = new JColorChooser(color);
+			myJColorChooser.getSelectionModel().addChangeListener(this);
+			this.add(myJColorChooser);
+		}
+		
+		public void stateChanged(ChangeEvent e) {
+			myColor = myJColorChooser.getColor();
+			StyleConstants.setForeground(keyWord, myColor);
+		}
 	}
 }

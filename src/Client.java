@@ -63,20 +63,7 @@ public class Client extends Thread{
      * @throws IOException
      */
     public void sendMessage(String msg) throws IOException {
-    	StringBuilder outString = new StringBuilder();
-    	outString.append("<message");
-//    	if(hasName()){
-//			String name = userName();
-//    		outString.append(' name = ' + name);
-//    	}
-//    	color = currColor;
-    	outString.append(">");
-    	outString.append("<text color=");
-//    	outString.append(color+">");
-    	outString.append(msg);
-    	outString.append("</text>");
-    	outString.append("</message>");
-        out.println(outString.toString());
+        out.println(msg);
     }
     
     /**

@@ -26,14 +26,14 @@ public class Tab {
 	private ClientObserver myClientObserver;
 	
 	/**
-	 * Constructor. Connects to server, creats panel and adds observers
+	 * Constructor. Connects to server, creates panel and adds observers
 	 */
 	public Tab(){
 		myChatPanel = new ChatPanel();
 		myDisplayPanel = new DisplayPanel();
 		myClient = new Client();
 		
-		myClient.startConnection("130.229.142.143", 4000);
+		myClient.startConnection("130.229.186.209", 4000);
 		
 		myPanel = new JPanel();
 //		myPanel.setLayout(new GridLayout(2,1,10,10));
@@ -71,10 +71,28 @@ public class Tab {
 			String tempString = (String) str;
 			try {
 				myDisplayPanel.display(tempString, myChatPanel.getKeyWord());
-				myClient.sendMessage(tempString);
+		    	
+				myClient.sendMessage(encodeString(tempString));
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		}
+		public String encodeString(String inString){
+			StringBuilder outString = new StringBuilder();
+	    	outString.append("<message");
+//	    	if(hasName()){
+//				String name = userName();
+//	    		outString.append(' name = ' + name);
+//	    	}
+//	    	color = currColor;
+	    	outString.append(">");
+	    	outString.append("<text color=");
+//	    	outString.append(color+">");
+	    	outString.append(inString);
+	    	outString.append("</text>");
+	    	outString.append("</message>");
+	        return outString.toString();
 		}
 	}
 	
@@ -85,15 +103,46 @@ public class Tab {
 	 */
 	private class ClientObserver implements Observer{
 		/**
-		 * If a message is recieved from the server, display it.
+		 * If a message is received from the server, display it.
 		 */
 		public void update(Observable a, Object str){
 			String tempString = (String) str;
+			try{
+				verifyMessage(tempString);
+			}catch(Exception e){
+				System.out.print(e.getMessage());
+			}
 			try {
 				myDisplayPanel.display(tempString, myChatPanel.getKeyWord());     /* THIS SHOULD BE KEYWORD FROM ELSEWHERE */
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+      public String verifyMessage(String msg) throws Exception{
+    	String[] stringArray = msg.split("\\s");
+    	ArrayList<Integer> markerArray = new ArrayList<Integer>();
+    	int len = stringArray.length;
+		if(!stringArray[0].equals("<message")){
+			throw new Exception("Bad message");
+		}
+		if(!stringArray[len].equals("</message>")){
+			throw new Exception("Bad message");
+		}
+    	for(int i=1; i<len;i++){
+    		if(stringArray[i].contains("<")&&stringArray[i].contains(">")){
+    			markerArray.add(i);
+    		}
+    		if(stringArray[i].contains(">")){
+    			
+    		}
+    	}
+    	StringBuilder buildFinal = new StringBuilder();
+    	for(int j = 1; j<stringArray.length; j++){
+    		if(!markerArray.contains(j)){
+    			buildFinal.append(stringArray[j]);
+    		}
+    	}
+		return buildFinal.toString();
+    }
 	}
 }

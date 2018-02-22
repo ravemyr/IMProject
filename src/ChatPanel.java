@@ -55,7 +55,9 @@ public class ChatPanel extends JPanel{
 	public SimpleAttributeSet getKeyWord() {
 		return keyWord;
 	}
-	
+	public String getName(){
+		return this.myName;
+	}
 	/**
 	 * Method for returning the observable object
 	 * @return

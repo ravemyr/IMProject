@@ -33,7 +33,7 @@ public class Tab {
 		myDisplayPanel = new DisplayPanel();
 		myClient = new Client();
 		
-		myClient.startConnection("130.229.186.209", 4000);
+		myClient.startConnection("127.0.0.1", 4000);
 		
 		myPanel = new JPanel();
 //		myPanel.setLayout(new GridLayout(2,1,10,10));
@@ -83,7 +83,7 @@ public class Tab {
 	    	outString.append("<message");
 //	    	if(hasName()){
 //				String name = userName();
-//	    		outString.append(' name = ' + name);
+//	    		outString.append(' sender = ' + name);
 //	    	}
 //	    	color = currColor;
 	    	outString.append(">");
@@ -108,7 +108,7 @@ public class Tab {
 		public void update(Observable a, Object str){
 			String tempString = (String) str;
 			try{
-				verifyMessage(tempString);
+				tempString = verifyMessage(tempString);
 			}catch(Exception e){
 				System.out.print(e.getMessage());
 			}
@@ -128,7 +128,10 @@ public class Tab {
 		if(!stringArray[len].equals("</message>")){
 			throw new Exception("Bad message");
 		}
-    	for(int i=1; i<len;i++){
+		if(stringArray[1].startsWith("sender=")){
+			String sender = stringArray[1].substring(5, stringArray[1].length()-2);
+		}
+    	for(int i=2; i<len;i++){
     		if(stringArray[i].contains("<")&&stringArray[i].contains(">")){
     			markerArray.add(i);
     		}

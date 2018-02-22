@@ -5,6 +5,7 @@
  */
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.util.*;
 
 import javax.swing.*;
@@ -64,6 +65,12 @@ public class ChatPanel extends JPanel{
 	public Color getColor(){
 		return this.myColor;
 	}
+	public String getHexColor(){
+		Color aColor = this.myColor;
+		return "#"+Integer.toHexString(aColor.getRGB()).substring(2).toUpperCase();
+		
+	}
+	
 	/**
 	 * Method for returning the observable object
 	 * @return
@@ -119,18 +126,20 @@ public class ChatPanel extends JPanel{
 	}
 	
 	private class FileButton extends JButton implements ActionListener{
-		private FileSelector myFileSelector;
+		private JFileChooser myFileChooser;
+		private File myFile;
 		public FileButton() {
-			this.setText("File");
+			this.setText("Send File");
 			this.addActionListener(this);
-			myFileSelector = new FileSelector();
+			myFileChooser = new JFileChooser();
 		}
 		
 		public void actionPerformed(ActionEvent e) {
-			JFrame tempFrame = new JFrame();
-			tempFrame.setVisible(true);
-			tempFrame.add(myFileSelector);
-			tempFrame.pack();
+			int returnValue = myFileChooser.showOpenDialog(null);
+			if (returnValue == JFileChooser.APPROVE_OPTION) {
+				myFile = myFileChooser.getSelectedFile();
+				System.out.println(myFile.getAbsolutePath());
+			}
 		}
 	}
 	

@@ -173,6 +173,7 @@ public class Tab {
     			buildFinal.append(" ");
     		}
     	}
+    	buildFinal.delete(buildFinal.length()-1,buildFinal.length()-1);
     	String ender = buildFinal.toString();
 		return ender;
     }

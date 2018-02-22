@@ -58,6 +58,9 @@ public class ChatPanel extends JPanel{
 	public String getName(){
 		return this.myName;
 	}
+	public Color getColor(){
+		return this.myColor;
+	}
 	/**
 	 * Method for returning the observable object
 	 * @return

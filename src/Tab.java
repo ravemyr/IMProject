@@ -119,8 +119,9 @@ public class Tab {
 		}
       public String verifyMessage(String msg) throws Exception{
     	String[] stringArray = msg.split("\\s");
-    	ArrayList<Integer> markerArray = new ArrayList<Integer>();
     	int len = stringArray.length;
+    	System.out.print("Here is: " + stringArray[len-1]);
+    	ArrayList<Integer> markerArray = new ArrayList<Integer>();
 		if(!((stringArray[0].equals("<message"))||(stringArray[0].equals("<encrypted>"))
 				||(stringArray[0].equals("<message>")))){
 			throw new Exception("Message start error");
@@ -169,6 +170,7 @@ public class Tab {
     	for(int j = 0; j<len-1; j++){
     		if(!(markerArray.contains(j))){
     			buildFinal.append(stringArray[j]);
+    			buildFinal.append(" ");
     		}
     	}
     	String ender = buildFinal.toString();

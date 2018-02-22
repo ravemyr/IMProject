@@ -25,6 +25,7 @@ public class ChatPanel extends JPanel{
 	private ColorChooser myColorChooser;
 	private ChatObservable myObservable;
 	private JTextArea myTextArea;
+	private FileButton myFileButton;
 	
 	/**
 	 * Constructor
@@ -41,6 +42,7 @@ public class ChatPanel extends JPanel{
 		myObservable = new ChatObservable();
 		mySendButton = new SendButton();
 		mySettingsButton = new SettingsButton();
+		myFileButton = new FileButton();
 		
 		/* Make UI */
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -48,6 +50,7 @@ public class ChatPanel extends JPanel{
 		JPanel bringThePane = new JPanel();
 		bringThePane.setLayout(new GridLayout(1, 2, 10, 5));
 		bringThePane.add(mySettingsButton);
+		bringThePane.add(myFileButton);
 		bringThePane.add(mySendButton);
 		this.add(bringThePane);
 	}
@@ -112,11 +115,26 @@ public class ChatPanel extends JPanel{
 		public void actionPerformed(ActionEvent e){
 			String newText = myTextArea.getText();
 			myObservable.sendUpdate(newText);
-		}		
-		
+		}			
 	}
 	
-	public class SettingsButton extends JButton implements ActionListener{
+	private class FileButton extends JButton implements ActionListener{
+		private FileSelector myFileSelector;
+		public FileButton() {
+			this.setText("File");
+			this.addActionListener(this);
+			myFileSelector = new FileSelector();
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			JFrame tempFrame = new JFrame();
+			tempFrame.setVisible(true);
+			tempFrame.add(myFileSelector);
+			tempFrame.pack();
+		}
+	}
+	
+	private class SettingsButton extends JButton implements ActionListener{
 
 		public SettingsButton(){
 			this.setText("Settings");

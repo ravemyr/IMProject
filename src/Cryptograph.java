@@ -1,6 +1,6 @@
 
 public class Cryptograph {
-	public static String encode(String inString, String type, String Key){
+	public static String encode(String inString, String type, int Key){
 		StringBuilder encodedString = new StringBuilder();
 		encodedString.append("<encrypted type=" + type + " key="+Key);
 		if(type=="Caesar"){
@@ -11,7 +11,7 @@ public class Cryptograph {
 				if(alphabet.contains(a)||
 						(Character.isUpperCase('a')&&
 								alphabet.contains(Character.toLowerCase(a))){ //If alphabetic
-					char newChar = 
+					char newChar = alphabet[]
 				}
 			}
 		}

@@ -72,7 +72,8 @@ public class Tab {
 		public void update(Observable a, Object str){
 			String tempString = (String) str;
 			try {
-				myDisplayPanel.display(myChatPanel.getName() +": " + tempString + "\n", myChatPanel.getKeyWord());
+				myDisplayPanel.display(myChatPanel.getName() +": " + 
+						tempString + "\n", myChatPanel.getKeyWord());
 				myClient.sendMessage(encodeString(tempString));
 				
 			} catch (Exception e) {
@@ -121,13 +122,13 @@ public class Tab {
 				System.out.print(e.getMessage());
 			}
 			try {
-				myDisplayPanel.display(newTempString + "\n", myKeyWord);     /* THIS SHOULD BE KEYWORD FROM ELSEWHERE */
+				myDisplayPanel.display(newTempString + "\n", myKeyWord);     //W THIS SHOULD BE KEYWORD FROM ELSEWHERE */
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		/**
-		 * method to control correctness of received message
+		 * Method to control correctness of received message
 		 * and converting it into valid text to be displayed.
 		 * @param msg
 		 * @return
@@ -137,14 +138,15 @@ public class Tab {
     	String[] stringArray = msg.split("\\s");
     	int len = stringArray.length;
     	String sender = "Anon";
-    	String colorString = "#000000";
+    	String colorString = "#000000"; //Black is default.
     	Color thisColor;
     	ArrayList<Integer> markerArray = new ArrayList<Integer>();
 		if(!((stringArray[0].equals("<message"))||(stringArray[0].equals("<encrypted>"))
 				||(stringArray[0].equals("<message>")))){
 			throw new Exception("Message start error");
 		}
-		if(!((stringArray[len-1].equals("</message>"))||(stringArray[len-1].equals("</encrypted>")))){
+		if(!((stringArray[len-1].equals("</message>"))||
+				(stringArray[len-1].equals("</encrypted>")))){
 			throw new Exception("Bad ending message");
 		}
 		markerArray.add(0);
@@ -157,16 +159,21 @@ public class Tab {
 //    		else if(stringArray[i].startsWith(("color="))&&textActive==0){
 //    			markerArray.add(i);
 //    		}
-    		else if((stringArray[i].contains("<")&&stringArray[i].contains(">"))&&textActive==0){
+    		else if((stringArray[i].contains("<")&&stringArray[i].contains(">"))
+    				&&textActive==0){
     			markerArray.add(i);
     		}
-    		else if(((stringArray[i].contains("</")&&stringArray[i].contains(">"))&&textActive==0)){
+    		else if(((stringArray[i].contains("</")&&stringArray[i].contains(">"))
+    				&&textActive==0)){
         		markerArray.add(i);
         	}
     		else if(stringArray[i].startsWith("<text")&&textActive==0){
     			markerArray.add(i);
-    			colorString = stringArray[i+1].substring(6,stringArray[i+1].length()-1);
-    			markerArray.add(i+1);
+    			if(stringArray[i+1].startsWith("color")){
+    				colorString = stringArray[i+1].substring(6,stringArray[i+1].length()-1);
+    				markerArray.add(i+1);
+    			}
+    			
     			if(textActive==0){
     				textActive = 1;
     			}

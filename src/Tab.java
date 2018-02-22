@@ -9,6 +9,8 @@ import java.awt.*;
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 
 /**
  * Class for controlling a single chat, makes sure messages get from
@@ -70,20 +72,26 @@ public class Tab {
 		public void update(Observable a, Object str){
 			String tempString = (String) str;
 			try {
-				myDisplayPanel.display(tempString, myChatPanel.getKeyWord());
+				myDisplayPanel.display(myChatPanel.getName() +": " + tempString + "\n", myChatPanel.getKeyWord());
 				myClient.sendMessage(encodeString(tempString));
 				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+		/**
+		 * encodes a written string into valid
+		 * XML-code format for handling
+		 * @param inString
+		 * @return
+		 */
 		public String encodeString(String inString){
 			StringBuilder outString = new StringBuilder();
 	    	outString.append("<message");
 			String name = myChatPanel.getName();
 	    	outString.append(" sender=" + name);
 	    	outString.append("> ");
-	    	Color thisColor = myChatPanel.getColor();
+	    	String thisColor = myChatPanel.getHexColor();
 	    	outString.append("<text color=");
 	    	outString.append(thisColor+"> ");
 	    	outString.append(inString);
@@ -99,6 +107,7 @@ public class Tab {
 	 *
 	 */
 	private class ClientObserver implements Observer{
+		SimpleAttributeSet myKeyWord = myChatPanel.getKeyWord();
 		/**
 		 * If a message is received from the server, display it.
 		 */
@@ -112,15 +121,24 @@ public class Tab {
 				System.out.print(e.getMessage());
 			}
 			try {
-				myDisplayPanel.display(newTempString, myChatPanel.getKeyWord());     /* THIS SHOULD BE KEYWORD FROM ELSEWHERE */
+				myDisplayPanel.display(newTempString + "\n", myKeyWord);     /* THIS SHOULD BE KEYWORD FROM ELSEWHERE */
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+		/**
+		 * method to control correctness of received message
+		 * and converting it into valid text to be displayed.
+		 * @param msg
+		 * @return
+		 * @throws Exception
+		 */
       public String verifyMessage(String msg) throws Exception{
     	String[] stringArray = msg.split("\\s");
     	int len = stringArray.length;
-    	System.out.print("Here is: " + stringArray[len-1]);
+    	String sender = "Anon";
+    	String colorString = "#000000";
+    	Color thisColor;
     	ArrayList<Integer> markerArray = new ArrayList<Integer>();
 		if(!((stringArray[0].equals("<message"))||(stringArray[0].equals("<encrypted>"))
 				||(stringArray[0].equals("<message>")))){
@@ -133,12 +151,12 @@ public class Tab {
 		int textActive = 0;
     	for(int i=1; i<len-1;i++){
     		if(stringArray[i].startsWith("sender=")&&textActive==0){
-    			String sender = stringArray[i].substring(5, stringArray[i].length()-2);
+    			sender = stringArray[i].substring(7, stringArray[i].length()-1);
     			markerArray.add(i);
     		}
-    		else if(stringArray[i].startsWith(("color="))&&textActive==0){
-    			markerArray.add(i);
-    		}
+//    		else if(stringArray[i].startsWith(("color="))&&textActive==0){
+//    			markerArray.add(i);
+//    		}
     		else if((stringArray[i].contains("<")&&stringArray[i].contains(">"))&&textActive==0){
     			markerArray.add(i);
     		}
@@ -147,12 +165,10 @@ public class Tab {
         	}
     		else if(stringArray[i].startsWith("<text")&&textActive==0){
     			markerArray.add(i);
-    			String colorString = stringArray[i+1].substring(5,stringArray[i+1].length()-1);
+    			colorString = stringArray[i+1].substring(6,stringArray[i+1].length()-1);
     			markerArray.add(i+1);
     			if(textActive==0){
     				textActive = 1;
-    				System.out.print(textActive);
-
     			}
     		}
     		else if(stringArray[i].startsWith("</text>")){
@@ -167,12 +183,16 @@ public class Tab {
     		}
     	}
     	StringBuilder buildFinal = new StringBuilder();
+    	buildFinal.append(sender + ": ");
     	for(int j = 0; j<len-1; j++){
     		if(!(markerArray.contains(j))){
     			buildFinal.append(stringArray[j]);
     			buildFinal.append(" ");
     		}
     	}
+    	thisColor = Color.decode(colorString);
+    	myKeyWord = new SimpleAttributeSet();
+    	StyleConstants.setForeground(myKeyWord, thisColor);
     	buildFinal.delete(buildFinal.length()-1,buildFinal.length()-1);
     	String ender = buildFinal.toString();
 		return ender;

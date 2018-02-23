@@ -74,7 +74,6 @@ public class Cryptograph {
 			temp.append(splitString[k]+ " ");
 		}
 		inString = temp.toString();
-		System.out.println(inString);
 		if(type.equals("Caesar")){
 			int Keyint = Integer.parseInt(Key);
 			char[] alphabet ={'a','b','c','d','e','f','g','h','i','j','k','l','m',
@@ -104,11 +103,9 @@ public class Cryptograph {
 							}
 							try{
 								decodedString.append(Character.toUpperCase(
-										alphabet[alphabet.length-Keyint+
-										         alphabet[(indexOf(alphabet,b))]]));
-										
-//										Keyint-alphabet[(indexOf(alphabet,b))%alphabet.length]));
-								used = 1;
+										alphabet[(alphabet.length-
+												Keyint%alphabet.length+indexOf(alphabet,b))]));
+										used = 1;
 								break;
 							}
 							catch(Exception c){
@@ -120,7 +117,7 @@ public class Cryptograph {
 						if(b==a){
 							try{
 								decodedString.append(alphabet[(indexOf(alphabet,b)
-										-Keyint)%alphabet.length]);
+										-Keyint%alphabet.length)]);
 								used = 1;
 								break;
 							}catch(Exception c){
@@ -133,7 +130,7 @@ public class Cryptograph {
 							}
 							try{
 								decodedString.append(Character.toUpperCase(
-										alphabet[(indexOf(alphabet,b)-Keyint)%alphabet.length]));
+										alphabet[(indexOf(alphabet,b)-Keyint%alphabet.length)]));
 								used = 1;
 								break;
 							}
@@ -172,7 +169,7 @@ public class Cryptograph {
 	}
 	public static void main(String[] args){
 		try {
-			String encrypted = Cryptograph.encode("abcdefghijklmnopqrstuvxyzåäö blbalsada", "Caesar", "13");
+			String encrypted = Cryptograph.encode("ABCdefghijklmnopqrstuvxyzÅÄÖ blbalsada", "Caesar", "84");
 			System.out.println(encrypted);
 			System.out.println(Cryptograph.decode(encrypted));
 		} catch (Exception e) {

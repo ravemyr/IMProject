@@ -1,16 +1,13 @@
-import java.nio.charset.Charset;
-
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
 import javax.crypto.spec.*;
+import javax.crypto.*;
 public class Cryptograph {
 	public static String encode(String inString, String type, String Key) throws Exception{
 		StringBuilder encodedString = new StringBuilder();
-		final byte[] key;
 		encodedString.append("<encrypted type=" + type + " key="+Key + "> ");
 		if(type=="Caesar"){
 			char[] alphabet ={'a','b','c','d','e','f','g','h','i','j','k','l','m',
-					'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö'};
+					'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö','1','2','3',
+					'4','5','6','7','8','9','!','?',')','(','=','>','<','/','&','%','#','@','$','[',']'};
 			for(int i = 0; i < inString.length(); i++){
 				char a = inString.charAt(i);
 				int used = 0;
@@ -34,7 +31,6 @@ public class Cryptograph {
 						}
 						catch(Exception c){
 							System.out.print(c.getMessage());
-							
 						}
 					}
 				}
@@ -46,15 +42,16 @@ public class Cryptograph {
 		else if(type=="AES"){
 			KeyGenerator AESgen = KeyGenerator.getInstance("AES");
 			AESgen.init(128);
-//			key = Key.getBytes(Charset.forName("UTF-8"));
-			//SecretKeySpec secret = new SecretKeySpec(key, type);
-			SecretKeySpec secret = (SecretKeySpec)AESgen.generateKey();
-			Cipher cip = Cipher.getInstance(type);
-			key = secret.getEncoded();
+			SecretKeySpec AESkey = (SecretKeySpec)AESgen.generateKey();
+			byte[] keyContent = AESkey.getEncoded();
+			System.out.println(keyContent);
+			encodedString.replace(0,encodedString.length(),"<encrypted type=" + type 
+					+ " key="+keyContent.toString() + "> ");
 			
-			cip.init(Cipher.ENCRYPT_MODE, secret);
-			encodedString.append(cip.doFinal
-					(inString.getBytes(Charset.forName("UTF-8"))).toString());
+			Cipher AEScipher = Cipher.getInstance("AES");
+			AEScipher.init(Cipher.ENCRYPT_MODE, AESkey);
+			byte[] cipherData = AEScipher.doFinal(inString.getBytes());
+			encodedString.append(cipherData.toString());
 		}
 		else{
 			throw new Exception("Unknown encryption");
@@ -65,7 +62,6 @@ public class Cryptograph {
 	}
 	public static String decode(String inString) throws Exception{
 		StringBuilder decodedString = new StringBuilder();
-		final byte[] key;
 		String[] splitString = inString.split("\\s");
 		String type = splitString[1].substring(5, splitString[1].length());
 		String Key = splitString[2].substring(4, splitString[2].length()-1);
@@ -73,11 +69,13 @@ public class Cryptograph {
 		for(int k = 3;k<splitString.length-1;k++){
 			temp.append(splitString[k]+ " ");
 		}
+		System.out.println(Key);
 		inString = temp.toString();
 		if(type.equals("Caesar")){
 			int Keyint = Integer.parseInt(Key);
 			char[] alphabet ={'a','b','c','d','e','f','g','h','i','j','k','l','m',
-					'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö'};
+					'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö','1','2','3',
+					'4','5','6','7','8','9','!','?',')','(','=','>','<','/','&','%','#','@','$','[',']'};
 			for(int i = 0; i < inString.length(); i++){
 				char a = inString.charAt(i);
 				int used = 0;
@@ -85,9 +83,6 @@ public class Cryptograph {
 					if(indexOf(alphabet,b)<Keyint%alphabet.length){
 						if(b==a){
 							try{
-//								System.out.print((alphabet.length-Keyint%alphabet.length+indexOf(alphabet,b)));
-//								System.out.print(alphabet[(alphabet.length-Keyint%alphabet.length+
-//						         alphabet[(indexOf(alphabet,b))])%alphabet.length]);
 								decodedString.append(
 										alphabet[(alphabet.length-
 												Keyint%alphabet.length+indexOf(alphabet,b))]);
@@ -98,9 +93,6 @@ public class Cryptograph {
 							}
 						}
 						else if(Character.toLowerCase(a)==b&&used==0){
-							if(Keyint-indexOf(alphabet,b)<indexOf(alphabet,b)){
-								
-							}
 							try{
 								decodedString.append(Character.toUpperCase(
 										alphabet[(alphabet.length-
@@ -146,12 +138,13 @@ public class Cryptograph {
 			}
 		}
 		else if(type.equals("AES")){
-			key = Key.getBytes(Charset.forName("UTF-8"));
-			SecretKeySpec secret = new SecretKeySpec(key, type);
-		    Cipher cip = Cipher.getInstance(type);
-		    cip.init(Cipher.DECRYPT_MODE, secret);
-		    decodedString.append(cip.doFinal
-					(splitString[3].getBytes(Charset.forName("UTF-8"))).toString());
+			byte[] keyContent = Key.getBytes();
+			SecretKeySpec decodeKey = new SecretKeySpec(keyContent ,"AES");
+			Cipher AEScipher = Cipher.getInstance("AES");
+			AEScipher.init(Cipher.DECRYPT_MODE, decodeKey);
+			byte[] decryptedData;
+			decryptedData = AEScipher.doFinal(inString.getBytes());
+		    decodedString.append(decryptedData);
 		}
 		else{
 			throw new Exception("Not a valid encryption");
@@ -169,7 +162,7 @@ public class Cryptograph {
 	}
 	public static void main(String[] args){
 		try {
-			String encrypted = Cryptograph.encode("ABCdefghijklmnopqrstuvxyzÅÄÖ blbalsada", "Caesar", "84");
+			String encrypted = Cryptograph.encode("1Shalalie shalala", "AES", "84");
 			System.out.println(encrypted);
 			System.out.println(Cryptograph.decode(encrypted));
 		} catch (Exception e) {

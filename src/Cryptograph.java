@@ -12,12 +12,15 @@ public class Cryptograph {
 	 */
 	public static String encode(String inString, String type, String Key) throws Exception{
 		StringBuilder encodedString = new StringBuilder();
-		encodedString.append("<encrypted type=" + type + " key="+Key + "> ");
+		String thisString;
+		encodedString.append("<encrypted type=" + type + " key="+
+				Integer.toHexString(Integer.parseInt(Key)) + "> ");
 		if(type=="Caesar"){
+			System.out.print(inString);
 			char[] alphabet ={'a','b','c','d','e','f','g','h','i','j','k','l','m',
 					'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö','A','B',
 					'C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U',
-					'V','W','X','Y','Z','Å','Ä','Ö','1','2','3','4','5','6','7','8','9',
+					'V','W','X','Y','Z','Å','Ä','Ö','0','1','2','3','4','5','6','7','8','9',
 					'!','?',')','(','=','>','<','/','&','%','#','@','$','[',']'};
 			for(int i = 0; i < inString.length(); i++){
 				char a = inString.charAt(i);
@@ -25,8 +28,12 @@ public class Cryptograph {
 				for(char b: alphabet){
 					if(b==a){
 						try{
-							encodedString.append(alphabet[(indexOf(alphabet,b)
+							thisString = String.format("%04x",(int)alphabet[(indexOf(alphabet,b)
 									+Integer.parseInt(Key))%alphabet.length]);
+							
+//							encodedString.append(alphabet[(indexOf(alphabet,b)
+//									+Integer.parseInt(Key))%alphabet.length]);
+							encodedString.append(thisString);
 							used = 1;
 							break;
 						}catch(Exception c){
@@ -35,7 +42,9 @@ public class Cryptograph {
 					}
 				}
 				if(used==0){
-					encodedString.append(a);
+					thisString = String.format("%04x", (int)a);
+					encodedString.append(thisString);
+				
 				}
 			}
 		}
@@ -56,17 +65,24 @@ public class Cryptograph {
 		else{
 			throw new Exception("Unknown encryption");
 		}
-		encodedString.append(" </encrypted>");
+		encodedString.append(" </encrypted> ");
 		return encodedString.toString();
 		
 	}
 	public static String decode(String inString) throws Exception{
 		StringBuilder decodedString = new StringBuilder();
 		String[] splitString = inString.split("\\s");
-		String type = splitString[1].substring(5, splitString[1].length());
-		String Key = splitString[2].substring(4, splitString[2].length()-1);
+		String type = splitString[3].substring(5, splitString[3].length());
+		String Key = splitString[4].substring(4, splitString[4].length()-1);
 		StringBuilder temp = new StringBuilder();
-		for(int k = 3;k<splitString.length-1;k++){
+		String thisString;
+		for(int j=0;j<5;j++){
+			decodedString.append(splitString[j]);
+			decodedString.append(" ");
+		}
+		String encodedString = unHex(splitString[5]);
+		String[] brokenDown = encodedString.split("\\s");
+		for(int k = 1;k<brokenDown.length;k++){
 			temp.append(splitString[k]+ " ");
 		}
 		inString = temp.toString();
@@ -74,16 +90,16 @@ public class Cryptograph {
 			char[] alphabet ={'a','b','c','d','e','f','g','h','i','j','k','l','m',
 					'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö','A','B',
 					'C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W',
-					'X','Y','Z','Å','Ä','Ö','1','2','3',
+					'X','Y','Z','Å','Ä','Ö','0','1','2','3',
 					'4','5','6','7','8','9','!','?',')','(','=','>','<','/','&','%','#','@','$','[',']'};
-			int Keyint = Integer.parseInt(Key)%alphabet.length;
+			int Keyint = Integer.decode(Key)%alphabet.length;
+			System.out.println("Here is "+ Keyint);
 			for(int i = 0; i < inString.length(); i++){
 				char a = inString.charAt(i);
 				int used = 0;
 				for(char b: alphabet){
 					if(b==a){
 						if(indexOf(alphabet,b)<Keyint){
-						
 							try{
 								decodedString.append(
 										alphabet[(alphabet.length-
@@ -110,11 +126,15 @@ public class Cryptograph {
 					decodedString.append(a);
 				}
 			}
+			decodedString.append(splitString[splitString.length-2]);
+			decodedString.append(" ");
+			
+			decodedString.append(splitString[splitString.length-1]);
 		}
 		else if(type.equals("AES")){
 			System.out.println(Key);
 			System.out.println("Here");
-			byte[] keyContent = Key.getBytes();
+			byte[] keyContent = Key.getBytes("UTF8");
 			System.out.println(keyContent);
 			SecretKeySpec decodeKey = new SecretKeySpec(keyContent,"AES");
 			Cipher AEScipher = Cipher.getInstance("AES");
@@ -136,6 +156,16 @@ public class Cryptograph {
 			}
 		}
 		throw new Exception("Non-valid arguments for encryption");
+	}
+	public static String unHex(String arg) {        
+	    String str = "";
+	    for(int i=0;i<arg.length();i+=2)
+	    {
+	        String s = arg.substring(i, (i + 2));
+	        int decimal = Integer.parseInt(s, 16);
+	        str = str + (char) decimal;
+	    }       
+	    return str;
 	}
 	public static void main(String[] args){
 		try {

@@ -48,6 +48,7 @@ public class ChatPanel extends JPanel{
 		StyleConstants.setForeground(keyWord, myColor);
 		myTextArea = new JTextArea();
 		myObservable = new ChatObservable();
+		myEncryptObservable = new EncryptObservable();
 		mySendButton = new SendButton();
 		mySettingsButton = new SettingsButton();
 		myFileButton = new FileButton();
@@ -227,6 +228,7 @@ public class ChatPanel extends JPanel{
 							e1.printStackTrace();
 						}
 						encrypted = true;
+						encryptType = "Caesar";
 					}
 					else if(n==1){
 						KeyGenerator AESgen = null;
@@ -240,6 +242,7 @@ public class ChatPanel extends JPanel{
 						SecretKeySpec AESkey = (SecretKeySpec)AESgen.generateKey();
 						myKey = AESkey.getEncoded();
 						encrypted = true;
+						encryptType = "AES";
 					}
 				}
 			});

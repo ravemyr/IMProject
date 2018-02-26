@@ -92,15 +92,16 @@ public class Tab {
 			StringBuilder tempString = new StringBuilder();
 	    	outString.append("<message");
 			String name = myChatPanel.getName();
-	    	tempString.append(" sender=" + name);
-	    	tempString.append("> ");
+	    	outString.append(" sender=" + name);
+	    	outString.append("> ");
 	    	String thisColor = myChatPanel.getHexColor();
 	    	tempString.append("<text color=");
 	    	tempString.append(thisColor+"> ");
 	    	tempString.append(inString);
 	    	tempString.append(" </text> ");
-	    	
+	    	System.out.print("Am I here?");
 	    	if(myChatPanel.isEncrypted()){
+	    		System.out.println(myChatPanel.getType());
 	    		String encryptedString = null;
 	    		try {
 					encryptedString = Cryptograph.encode(tempString.toString(),
@@ -135,17 +136,87 @@ public class Tab {
 			String newTempString = null;
 			String tempString = (String) str;
 			try{
-				newTempString = verifyMessage(tempString);
+				String verifyStr = verifyType(tempString);
+				System.out.print(verifyStr);
+				if (verifyStr.equals("filerequest")) {
+//					myFileReceiver = new FileReceiver(tempString);
+					
+//					myClient(myFileReceiver.getOutString());
+					
+//					myFileTransferGUI = new FileTransferGUI(tempString);
+//					newTempString = askFileAcceptance(tempString);				/////////////////////////////////////////////////
+//					myClient.sendMessage(newTempString);
+				}
+				else if (verifyStr.equals("text")) {
+					newTempString = verifyMessage(tempString);
+					myDisplayPanel.display(newTempString + "\n", myKeyWord);      //W THIS SHOULD BE KEYWORD FROM ELSEWHERE */ jag ändrade lite här /Gustav
+				}
+				else if (verifyStr.equals("filerespons")) {
+					String[] tempStringArray = tempString.split("\\s");
+					int port = Integer.parseInt(tempStringArray[4].substring(5,
+							tempStringArray[4].length()-1));		
+//					myFileSender.sendFileTo(myIP, port);
+				}
+				else if(verifyStr.equals("keyrequest")){
+					String[] controlArray=tempString.split("\\s");
+					if(controlArray[3].substring(6,controlArray[3].length()-1).equals("AES")||
+							controlArray[3].substring(6,controlArray[3].length()-1).equals("Caesar")){
+						try {
+							myClient.sendMessage("<message> <keyresponse answer=true> "
+									+ "</keyresponse> </message>");
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					else{
+						try {
+							myClient.sendMessage("<message> <keyresponse answer=false> "
+										+ "</keyresponse> </message>");
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				else if(verifyStr.equals("keyresponse")){
+					String[] controlArray = tempString.split("\\s");
+					if(controlArray[3].substring(8,controlArray[3].length()-1).equals("false")){
+						JOptionPane.showMessageDialog(new JFrame(), "Other user does not support"
+								+ " your encryption, please change it.");
+					}
+				}
+				else if(verifyStr.equals("encrypted")){
+					System.out.print(tempString);
+					newTempString = Cryptograph.decode(tempString);
+					System.out.print(newTempString);
+					String finalString = verifyMessage(newTempString);
+					myDisplayPanel.display(finalString + "\n", myKeyWord);
+				}
+				else {
+					newTempString = "There is a bug in your CODE!";
+				}
+				
 			}catch(Exception e){
 				e.printStackTrace();
 				System.out.print(e.getMessage());
 			}
-			try {
-				myDisplayPanel.display(newTempString + "\n", myKeyWord);     //W THIS SHOULD BE KEYWORD FROM ELSEWHERE */
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 		}
+//			String classType = verifyType(tempString);
+//			System.out.print(classType);
+//			if(classType.equals("text")){
+//				try{
+//					newTempString = verifyMessage(tempString);
+//				}catch(Exception e){
+//					e.printStackTrace();
+//					System.out.print(e.getMessage());
+//				}
+//				try {
+//					myDisplayPanel.display(newTempString + "\n", myKeyWord);     //W THIS SHOULD BE KEYWORD FROM ELSEWHERE */
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+
 
 		/**
 		 * Method to control correctness of received message
@@ -161,8 +232,7 @@ public class Tab {
     	String colorString = "#000000"; //Black is default.
     	Color thisColor;
     	ArrayList<Integer> markerArray = new ArrayList<Integer>();
-		if(!stringArray[0].equals("<message")
-				||(stringArray[0].equals("<message>"))){
+		if(!stringArray[0].equals("<message")){
 			throw new Exception("Message start error");
 		}
 		if(!stringArray[len-1].equals("</message>")){
@@ -175,8 +245,11 @@ public class Tab {
     				sender = stringArray[i].substring(7, stringArray[i].length()-1);
     			markerArray.add(i);
     		}
-    		else if((stringArray[i].contains("<")&&stringArray[i].contains(">"))
+    		else if((stringArray[i].contains("<")||stringArray[i].contains(">"))
     				&&textActive==0){
+    			markerArray.add(i);
+    		}
+    		else if(stringArray[i].startsWith("type=")&&textActive==0){
     			markerArray.add(i);
     		}
     		else if(((stringArray[i].contains("</")&&stringArray[i].contains(">"))
@@ -225,9 +298,10 @@ public class Tab {
 		@Override
 		public void update(Observable b, Object type) {
 			String encrypt = (String) type;
+			System.out.print(type);
 			StringBuilder keyReq = new StringBuilder();
 			keyReq.append("<message sender="+myChatPanel.getName()+"> ");
-			keyReq.append("<keqrequest type="+type+"> ");
+			keyReq.append("<keyrequest type="+type+"> ");
 			keyReq.append("</keyrequest> </message>");
 			try{
 				myClient.sendMessage(keyReq.toString());
@@ -250,8 +324,14 @@ public class Tab {
 			else if (a.startsWith("<filerespons")) {
 				return "filerespons";
 			}
-			else if (a.startsWith("<keyRequest")){
-				return "keyRequest";
+			else if (a.startsWith("<keyrequest")){
+				return "keyrequest";
+			}
+			else if (a.startsWith("<keyresponse")){
+				return "keyresponse";
+			}
+			else if(a.startsWith("<encrypted")){
+				return "encrypted";
 			}
 		}
 		return null;

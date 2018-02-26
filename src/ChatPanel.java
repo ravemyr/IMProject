@@ -6,8 +6,12 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.spec.SecretKeySpec;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
@@ -25,9 +29,12 @@ public class ChatPanel extends JPanel{
 	private String myName;
 	private ColorChooser myColorChooser;
 	private ChatObservable myObservable;
+	private EncryptObservable myEncryptObservable;
 	private JTextArea myTextArea;
 	private FileButton myFileButton;
-	
+	private byte[] myKey;
+	private boolean encrypted = false;
+	private String encryptType;
 	/**
 	 * Constructor
 	 */
@@ -78,6 +85,9 @@ public class ChatPanel extends JPanel{
 	public ChatObservable getObservable(){
 		return myObservable;
 	}
+	public EncryptObservable getEncryptObservable(){
+		return myEncryptObservable;
+	}
 	
 	/**
 	 * Class for updating observers to send message input by the user
@@ -93,6 +103,12 @@ public class ChatPanel extends JPanel{
 		public void sendUpdate(String myString){
 			setChanged();
 			notifyObservers(myString);
+		}
+	}
+	class EncryptObservable extends Observable{
+		public void sendUpdate(String myCrypt){
+			setChanged();
+			notifyObservers(myCrypt);
 		}
 	}
 	
@@ -122,6 +138,7 @@ public class ChatPanel extends JPanel{
 		public void actionPerformed(ActionEvent e){
 			String newText = myTextArea.getText();
 			myObservable.sendUpdate(newText);
+			myTextArea.setText(null);
 		}			
 	}
 	
@@ -161,16 +178,19 @@ public class ChatPanel extends JPanel{
 	private class SettingsSelector extends JPanel{
 		private JButton colorButton;
 		private JButton nameButton;
+		private JButton myEncryptButton;
 		
 		public SettingsSelector(){
 			colorButton = new JButton();
 			nameButton = new JButton();
+			myEncryptButton = new JButton();
 			colorButton.setText("Color");
 			nameButton.setText("Username");
+			myEncryptButton.setText("Encrypt");
 			
 			this.add(colorButton);
 			this.add(nameButton);
-			
+			this.add(myEncryptButton);
 			colorButton.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e){
 					JFrame tempFrame = new JFrame();
@@ -185,7 +205,61 @@ public class ChatPanel extends JPanel{
 					myName = JOptionPane.showInputDialog("Enter username:");
 				}
 			});
+			
+			myEncryptButton.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e){
+					int n;
+					Object[] options = {"Caesar","AES","Cancel"};
+					n = JOptionPane.showOptionDialog(new JFrame(),
+						    "What type of encryption would you want?",
+						    "Encryption selection",
+						    JOptionPane.YES_NO_CANCEL_OPTION,
+						    JOptionPane.QUESTION_MESSAGE,
+						    null,
+						    options,
+						    options[2]);
+					if(n==0){
+						String keyCode = JOptionPane.showInputDialog("Enter integer key");
+						try {
+							myKey = keyCode.getBytes("UTF8");
+						} catch (UnsupportedEncodingException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						encrypted = true;
+					}
+					else if(n==1){
+						KeyGenerator AESgen = null;
+						try {
+							AESgen = KeyGenerator.getInstance("AES");
+						} catch (NoSuchAlgorithmException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						AESgen.init(128);
+						SecretKeySpec AESkey = (SecretKeySpec)AESgen.generateKey();
+						myKey = AESkey.getEncoded();
+						encrypted = true;
+					}
+				}
+			});
 		}
-		
 	}
+	public byte[] getKey(){
+		return myKey;
+	}
+	public void setType(String inString){
+		if(inString.equals("AES"))
+			encryptType = inString;
+		else if(inString.equals("Caesar")){
+			encryptType = inString;
+		}
+	}
+	public String getType(){
+		return encryptType;
+	}
+	public boolean isEncrypted(){
+		return encrypted;
+	}
+	
 }

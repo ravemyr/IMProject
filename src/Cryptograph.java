@@ -1,13 +1,24 @@
 import javax.crypto.spec.*;
 import javax.crypto.*;
 public class Cryptograph {
+	/**
+	 * Encodes given string with given crypto and key. If the key should be auto-generated
+	 * The program will override the input and autogenerate a key.
+	 * @param inString
+	 * @param type
+	 * @param Key
+	 * @return
+	 * @throws Exception
+	 */
 	public static String encode(String inString, String type, String Key) throws Exception{
 		StringBuilder encodedString = new StringBuilder();
 		encodedString.append("<encrypted type=" + type + " key="+Key + "> ");
 		if(type=="Caesar"){
 			char[] alphabet ={'a','b','c','d','e','f','g','h','i','j','k','l','m',
-					'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö','1','2','3',
-					'4','5','6','7','8','9','!','?',')','(','=','>','<','/','&','%','#','@','$','[',']'};
+					'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö','A','B',
+					'C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U',
+					'V','W','X','Y','Z','Å','Ä','Ö','1','2','3','4','5','6','7','8','9',
+					'!','?',')','(','=','>','<','/','&','%','#','@','$','[',']'};
 			for(int i = 0; i < inString.length(); i++){
 				char a = inString.charAt(i);
 				int used = 0;
@@ -19,17 +30,6 @@ public class Cryptograph {
 							used = 1;
 							break;
 						}catch(Exception c){
-							System.out.print(c.getMessage());
-						}
-					}
-					else if(Character.toLowerCase(a)==b){
-						try{
-							encodedString.append(Character.toUpperCase(
-									alphabet[(indexOf(alphabet,b)+Integer.parseInt(Key))%alphabet.length]));
-							used = 1;
-							break;
-						}
-						catch(Exception c){
 							System.out.print(c.getMessage());
 						}
 					}
@@ -69,64 +69,38 @@ public class Cryptograph {
 		for(int k = 3;k<splitString.length-1;k++){
 			temp.append(splitString[k]+ " ");
 		}
-		System.out.println(Key);
 		inString = temp.toString();
 		if(type.equals("Caesar")){
-			int Keyint = Integer.parseInt(Key);
 			char[] alphabet ={'a','b','c','d','e','f','g','h','i','j','k','l','m',
-					'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö','1','2','3',
+					'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö','A','B',
+					'C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W',
+					'X','Y','Z','Å','Ä','Ö','1','2','3',
 					'4','5','6','7','8','9','!','?',')','(','=','>','<','/','&','%','#','@','$','[',']'};
+			int Keyint = Integer.parseInt(Key)%alphabet.length;
 			for(int i = 0; i < inString.length(); i++){
 				char a = inString.charAt(i);
 				int used = 0;
 				for(char b: alphabet){
-					if(indexOf(alphabet,b)<Keyint%alphabet.length){
-						if(b==a){
+					if(b==a){
+						if(indexOf(alphabet,b)<Keyint){
+						
 							try{
 								decodedString.append(
 										alphabet[(alphabet.length-
-												Keyint%alphabet.length+indexOf(alphabet,b))]);
+												Keyint+indexOf(alphabet,b))]);
 								used = 1;
 								break;
 							}catch(Exception c){
 								System.out.print(c.getMessage());
 							}
 						}
-						else if(Character.toLowerCase(a)==b&&used==0){
-							try{
-								decodedString.append(Character.toUpperCase(
-										alphabet[(alphabet.length-
-												Keyint%alphabet.length+indexOf(alphabet,b))]));
-										used = 1;
-								break;
-							}
-							catch(Exception c){
-								System.out.print(c.getMessage());
-							}
-						}
-					}
-					else{
-						if(b==a){
+						else{
 							try{
 								decodedString.append(alphabet[(indexOf(alphabet,b)
-										-Keyint%alphabet.length)]);
+										-Keyint)]);
 								used = 1;
 								break;
 							}catch(Exception c){
-								System.out.print(c.getMessage());
-							}
-						}
-						else if(Character.toLowerCase(a)==b){
-							if(indexOf(alphabet,b)-Keyint<indexOf(alphabet,b)){
-								
-							}
-							try{
-								decodedString.append(Character.toUpperCase(
-										alphabet[(indexOf(alphabet,b)-Keyint%alphabet.length)]));
-								used = 1;
-								break;
-							}
-							catch(Exception c){
 								System.out.print(c.getMessage());
 							}
 						}
@@ -138,8 +112,11 @@ public class Cryptograph {
 			}
 		}
 		else if(type.equals("AES")){
+			System.out.println(Key);
+			System.out.println("Here");
 			byte[] keyContent = Key.getBytes();
-			SecretKeySpec decodeKey = new SecretKeySpec(keyContent ,"AES");
+			System.out.println(keyContent);
+			SecretKeySpec decodeKey = new SecretKeySpec(keyContent,"AES");
 			Cipher AEScipher = Cipher.getInstance("AES");
 			AEScipher.init(Cipher.DECRYPT_MODE, decodeKey);
 			byte[] decryptedData;
@@ -162,9 +139,25 @@ public class Cryptograph {
 	}
 	public static void main(String[] args){
 		try {
-			String encrypted = Cryptograph.encode("1Shalalie shalala", "AES", "84");
+			String encrypted = Cryptograph.encode("MEMES ARE GREAT", "Caesar", "1123");
 			System.out.println(encrypted);
 			System.out.println(Cryptograph.decode(encrypted));
+//			byte[] dataToEncrypt = "Hej".getBytes();
+//			byte[] keyContent;
+//			// Skapa nyckel 
+//			KeyGenerator AESgen = KeyGenerator.getInstance("AES");
+//			AESgen.init(128);
+//			SecretKeySpec AESkey = (SecretKeySpec)AESgen.generateKey(); 
+//			keyContent = AESkey.getEncoded();
+//			// Kryptera
+//			Cipher AEScipher = Cipher.getInstance("AES");
+//			AEScipher.init(Cipher.ENCRYPT_MODE, AESkey);
+//			byte[] cipherData = AEScipher.doFinal(dataToEncrypt);
+//			// Avkryptera 
+//			SecretKeySpec decodeKey = new SecretKeySpec(keyContent, "AES");
+//			AEScipher.init(Cipher.DECRYPT_MODE, decodeKey);
+//			byte[] decryptedData = AEScipher.doFinal(cipherData);
+//			System.out.println("Decrypted: " + new String(decryptedData));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

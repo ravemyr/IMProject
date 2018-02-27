@@ -194,9 +194,7 @@ public class Tab {
 					}
 				}
 				else if(verifyStr.equals("encrypted")){
-					System.out.print(tempString);
 					newTempString = Cryptograph.decode(tempString);
-					System.out.print(newTempString);
 					String finalString = verifyMessage(newTempString);
 					myDisplayPanel.display(finalString + "\n", myKeyWord);
 				}
@@ -252,6 +250,17 @@ public class Tab {
     				sender = stringArray[i].substring(7, stringArray[i].length()-1);
     			markerArray.add(i);
     		}
+    		else if(stringArray[i].startsWith("<text")&&textActive==0){
+    			System.out.println("Do I get here?");
+    			markerArray.add(i);
+//    			if(stringArray[i+1].startsWith("color")){
+    			colorString = stringArray[i+1].substring(6,stringArray[i+1].length()-1);
+    			markerArray.add(i+1);
+//    			}
+    			if(textActive==0){
+    				textActive = 1;
+    			}
+    		}
     		else if((stringArray[i].contains("<")||stringArray[i].contains(">"))
     				&&textActive==0){
     			markerArray.add(i);
@@ -264,11 +273,12 @@ public class Tab {
         		markerArray.add(i);
         	}
     		else if(stringArray[i].startsWith("<text")&&textActive==0){
+    			System.out.println("Do I get here?");
     			markerArray.add(i);
-    			if(stringArray[i+1].startsWith("color")){
-    				colorString = stringArray[i+1].substring(6,stringArray[i+1].length()-1);
-    				markerArray.add(i+1);
-    			}
+//    			if(stringArray[i+1].startsWith("color")){
+    			colorString = stringArray[i+1].substring(6,stringArray[i+1].length()-1);
+    			markerArray.add(i+1);
+//    			}
     			if(textActive==0){
     				textActive = 1;
     			}
@@ -297,6 +307,7 @@ public class Tab {
     	StyleConstants.setForeground(myKeyWord, thisColor);
     	buildFinal.delete(buildFinal.length()-1,buildFinal.length()-1);
     	String ender = buildFinal.toString();
+    	System.out.println(colorString);
 		return ender;
     }
 	}

@@ -204,6 +204,7 @@ public class ChatPanel extends JPanel{
 			nameButton.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e){
 					myName = JOptionPane.showInputDialog("Enter username:");
+					myName = myName.replaceAll("\\s","");
 				}
 			});
 			

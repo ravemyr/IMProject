@@ -147,14 +147,15 @@ public class Cryptograph {
 			byte[] decryptedData;
 			decryptedData = AEScipher.doFinal(encoded);
 		    decodedString.append(new String(decryptedData,"UTF8"));
+			decodedString.append(splitString[splitString.length-2]);
+			decodedString.append(" ");
+			
+			decodedString.append(splitString[splitString.length-1]);
 		}
 		else{
 			throw new Exception("Not a valid encryption");
 		}
-		decodedString.append(splitString[splitString.length-2]);
-		decodedString.append(" ");
-		
-		decodedString.append(splitString[splitString.length-1]);
+
 		return decodedString.toString();
 		
 	}

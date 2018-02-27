@@ -272,23 +272,13 @@ public class Tab {
     				&&textActive==0)){
         		markerArray.add(i);
         	}
-    		else if(stringArray[i].startsWith("<text")&&textActive==0){
-    			System.out.println("Do I get here?");
-    			markerArray.add(i);
-//    			if(stringArray[i+1].startsWith("color")){
-    			colorString = stringArray[i+1].substring(6,stringArray[i+1].length()-1);
-    			markerArray.add(i+1);
-//    			}
-    			if(textActive==0){
-    				textActive = 1;
-    			}
-    		}
+
     		else if(stringArray[i].startsWith("</text>")){
     			if(i==len-3&&stringArray[len-1].equals("</encrypted>")){
     				textActive = 0;
     				markerArray.add(i);
     			}
-    			else if(i==len-2&&stringArray[len-1].equals("</message>")){
+    			else if((i==len-2&&stringArray[len-1].equals("</message>"))||(i==len-3&&stringArray[len-1].equals("</message>"))){
     				textActive = 0;
     				markerArray.add(i);
     			}

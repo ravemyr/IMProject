@@ -28,7 +28,7 @@ public class Cryptograph {
 				for(char b: alphabet){
 					if(b==a){
 						try{
-							thisString = String.format("%04x",(int)alphabet[(indexOf(alphabet,b)
+							thisString = String.format("%02x",(int)alphabet[(indexOf(alphabet,b)
 									+Integer.parseInt(Key))%alphabet.length]);
 							
 //							encodedString.append(alphabet[(indexOf(alphabet,b)
@@ -42,7 +42,7 @@ public class Cryptograph {
 					}
 				}
 				if(used==0){
-					thisString = String.format("%04x", (int)a);
+					thisString = String.format("%02x", (int)a);
 					encodedString.append(thisString);
 				
 				}
@@ -75,24 +75,19 @@ public class Cryptograph {
 		String type = splitString[3].substring(5, splitString[3].length());
 		String Key = splitString[4].substring(4, splitString[4].length()-1);
 		StringBuilder temp = new StringBuilder();
-		String thisString;
 		for(int j=0;j<5;j++){
 			decodedString.append(splitString[j]);
 			decodedString.append(" ");
 		}
 		String encodedString = unHex(splitString[5]);
-		String[] brokenDown = encodedString.split("\\s");
-		for(int k = 1;k<brokenDown.length;k++){
-			temp.append(splitString[k]+ " ");
-		}
-		inString = temp.toString();
+		inString = encodedString;
 		if(type.equals("Caesar")){
 			char[] alphabet ={'a','b','c','d','e','f','g','h','i','j','k','l','m',
 					'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö','A','B',
 					'C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W',
 					'X','Y','Z','Å','Ä','Ö','0','1','2','3',
 					'4','5','6','7','8','9','!','?',')','(','=','>','<','/','&','%','#','@','$','[',']'};
-			int Keyint = Integer.decode(Key)%alphabet.length;
+			int Keyint = (int) (Long.parseLong(Key,16)%alphabet.length);
 			System.out.println("Here is "+ Keyint);
 			for(int i = 0; i < inString.length(); i++){
 				char a = inString.charAt(i);

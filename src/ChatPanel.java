@@ -220,6 +220,7 @@ public class ChatPanel extends JPanel{
 						    options,
 						    options[2]);
 					if(n==0){
+						System.out.print("This");
 						String keyCode = JOptionPane.showInputDialog("Enter integer key");
 						try {
 							myKey = keyCode.getBytes("UTF8");
@@ -241,8 +242,8 @@ public class ChatPanel extends JPanel{
 						AESgen.init(128);
 						SecretKeySpec AESkey = (SecretKeySpec)AESgen.generateKey();
 						myKey = AESkey.getEncoded();
-						encrypted = true;
 						encryptType = "AES";
+						encrypted = true;
 					}
 				}
 			});

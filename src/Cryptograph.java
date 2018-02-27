@@ -1,4 +1,8 @@
 import javax.crypto.spec.*;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Base64;
+
 import javax.crypto.*;
 public class Cryptograph {
 	/**
@@ -13,10 +17,9 @@ public class Cryptograph {
 	public static String encode(String inString, String type, String Key) throws Exception{
 		StringBuilder encodedString = new StringBuilder();
 		String thisString;
-		encodedString.append("<encrypted type=" + type + " key="+
-				Integer.toHexString(Integer.parseInt(Key)) + "> ");
+		encodedString.append("<encrypted type=" + type + " key=");
 		if(type=="Caesar"){
-			System.out.print(inString);
+			encodedString.append(Integer.toHexString(Integer.parseInt(Key)) + "> ");
 			char[] alphabet ={'a','b','c','d','e','f','g','h','i','j','k','l','m',
 					'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö','A','B',
 					'C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U',
@@ -49,18 +52,23 @@ public class Cryptograph {
 			}
 		}
 		else if(type=="AES"){
-			KeyGenerator AESgen = KeyGenerator.getInstance("AES");
-			AESgen.init(128);
-			SecretKeySpec AESkey = (SecretKeySpec)AESgen.generateKey();
-			byte[] keyContent = AESkey.getEncoded();
+			for(int i = 0; i<Key.length();i++){
+				encodedString.append(String.format("%02x", (int)Key.charAt(i)));
+			}
+			encodedString.append(">");
+			encodedString.append(" ");
+//			encodedString.append(String.format("%02x", Integer.parseInt(Key)));
+			byte[] keyContent = Base64.getDecoder().decode(Key);
+			SecretKeySpec AESkey = new SecretKeySpec(keyContent,0,keyContent.length, "AES");
 			System.out.println(keyContent);
-			encodedString.replace(0,encodedString.length(),"<encrypted type=" + type 
-					+ " key="+keyContent.toString() + "> ");
 			
 			Cipher AEScipher = Cipher.getInstance("AES");
 			AEScipher.init(Cipher.ENCRYPT_MODE, AESkey);
 			byte[] cipherData = AEScipher.doFinal(inString.getBytes());
-			encodedString.append(cipherData.toString());
+			for(byte b: cipherData){
+				encodedString.append(String.format("%02x", b));
+//				encodedString.append(cipherData.toString());
+			}
 		}
 		else{
 			throw new Exception("Unknown encryption");
@@ -79,9 +87,9 @@ public class Cryptograph {
 			decodedString.append(splitString[j]);
 			decodedString.append(" ");
 		}
-		String encodedString = unHex(splitString[5]);
-		inString = encodedString;
 		if(type.equals("Caesar")){
+			String encodedString = unHex(splitString[5]);
+			inString = encodedString;
 			char[] alphabet ={'a','b','c','d','e','f','g','h','i','j','k','l','m',
 					'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö','A','B',
 					'C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W',
@@ -127,20 +135,26 @@ public class Cryptograph {
 			decodedString.append(splitString[splitString.length-1]);
 		}
 		else if(type.equals("AES")){
-			System.out.println(Key);
-			System.out.println("Here");
-			byte[] keyContent = Key.getBytes("UTF8");
-			System.out.println(keyContent);
-			SecretKeySpec decodeKey = new SecretKeySpec(keyContent,"AES");
+			String neuKey = unHex(Key);
+			byte[] keyContent = Base64.getDecoder().decode(neuKey);
+			String encodedString = unHex(splitString[5]);
+			byte[] encoded = hexStringToByteArray(splitString[5]);
+			System.out.println("This is: "+ new String(encoded,"UTF8"));
+			inString = encodedString;
+			SecretKeySpec decodeKey = new SecretKeySpec(keyContent, "AES");
 			Cipher AEScipher = Cipher.getInstance("AES");
 			AEScipher.init(Cipher.DECRYPT_MODE, decodeKey);
 			byte[] decryptedData;
-			decryptedData = AEScipher.doFinal(inString.getBytes());
-		    decodedString.append(decryptedData);
+			decryptedData = AEScipher.doFinal(encoded);
+		    decodedString.append(new String(decryptedData,"UTF8"));
 		}
 		else{
 			throw new Exception("Not a valid encryption");
 		}
+		decodedString.append(splitString[splitString.length-2]);
+		decodedString.append(" ");
+		
+		decodedString.append(splitString[splitString.length-1]);
 		return decodedString.toString();
 		
 	}
@@ -162,28 +176,26 @@ public class Cryptograph {
 	    }       
 	    return str;
 	}
+	public static byte[] hexStringToByteArray(String s) {
+	    int len = s.length();
+	    byte[] data = new byte[len / 2];
+	    for (int i = 0; i < len; i += 2) {
+	        data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+	                             + Character.digit(s.charAt(i+1), 16));
+	    }
+	    return data;
+	}
 	public static void main(String[] args){
+		StringBuilder thisone = new StringBuilder();
 		try {
-			String encrypted = Cryptograph.encode("MEMES ARE GREAT", "Caesar", "1123");
-			System.out.println(encrypted);
-			System.out.println(Cryptograph.decode(encrypted));
-//			byte[] dataToEncrypt = "Hej".getBytes();
-//			byte[] keyContent;
-//			// Skapa nyckel 
-//			KeyGenerator AESgen = KeyGenerator.getInstance("AES");
-//			AESgen.init(128);
-//			SecretKeySpec AESkey = (SecretKeySpec)AESgen.generateKey(); 
-//			keyContent = AESkey.getEncoded();
-//			// Kryptera
-//			Cipher AEScipher = Cipher.getInstance("AES");
-//			AEScipher.init(Cipher.ENCRYPT_MODE, AESkey);
-//			byte[] cipherData = AEScipher.doFinal(dataToEncrypt);
-//			// Avkryptera 
-//			SecretKeySpec decodeKey = new SecretKeySpec(keyContent, "AES");
-//			AEScipher.init(Cipher.DECRYPT_MODE, decodeKey);
-//			byte[] decryptedData = AEScipher.doFinal(cipherData);
-//			System.out.println("Decrypted: " + new String(decryptedData));
-		} catch (Exception e) {
+			byte[] testBytes = "Hello there".getBytes("UTF8");
+			for(byte b: testBytes){
+				thisone.append(String.format("%02x", b));
+			}
+			System.out.println(new String(testBytes,"UTF8"));
+			System.out.println(thisone.toString());
+			System.out.println(new String(hexStringToByteArray(thisone.toString()),"UTF8"));
+		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

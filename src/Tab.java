@@ -104,8 +104,14 @@ public class Tab {
 	    		System.out.println(myChatPanel.getType());
 	    		String encryptedString = null;
 	    		try {
+	    			if(myChatPanel.getType().equals("AES")){
 					encryptedString = Cryptograph.encode(tempString.toString(),
-							myChatPanel.getType(), new String(myChatPanel.getKey(),"UTF8"));
+							myChatPanel.getType(), Base64.getEncoder().encodeToString(myChatPanel.getKey())); //new String(myChatPanel.getKey(),"UTF8")
+	    			}
+	    			else if(myChatPanel.getType().equals("Caesar")){
+	    				encryptedString = Cryptograph.encode(tempString.toString(),
+								myChatPanel.getType(), new String(myChatPanel.getKey(),"UTF8"));
+		    			}
 				} catch (UnsupportedEncodingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -137,6 +143,7 @@ public class Tab {
 			String tempString = (String) str;
 			try{
 				String verifyStr = verifyType(tempString);
+				System.out.print(tempString);
 				System.out.print(verifyStr);
 				if (verifyStr.equals("filerequest")) {
 //					myFileReceiver = new FileReceiver(tempString);

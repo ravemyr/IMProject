@@ -23,7 +23,7 @@ public class Viewer {
 		myFrame = new JFrame();
 		JPanel myPanel = myTab.getPanel();
 		myTabPane = new JTabbedPane();
-		myTabPane.addTab("Client",myPanel);
+		myTabPane.addTab("Client", myPanel);
 		myFrame.getContentPane().add(myTabPane);
 		myFrame.setVisible(true);
 		myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

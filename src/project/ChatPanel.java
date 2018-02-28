@@ -1,16 +1,14 @@
 package project;
 /**
-
  * ChatPanel
  * 
  * Created 2018-02-19
  */
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
+import java.io.*;
 import java.util.*;
+import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.spec.SecretKeySpec;
@@ -30,13 +28,16 @@ public class ChatPanel extends JPanel{
 	private SimpleAttributeSet keyWord;
 	private String myName;
 	private ColorChooser myColorChooser;
-	private ChatObservable myObservable;
+	private ChatObservable myChatObs;
+	private FileObservable myFileObs;
 	private EncryptObservable myEncryptObservable;
 	private JTextArea myTextArea;
 	private FileButton myFileButton;
+	private File myFile;
 	private byte[] myKey;
 	private boolean encrypted = false;
 	private String encryptType;
+	
 	/**
 	 * Constructor
 	 */
@@ -49,7 +50,8 @@ public class ChatPanel extends JPanel{
 		keyWord = new SimpleAttributeSet();
 		StyleConstants.setForeground(keyWord, myColor);
 		myTextArea = new JTextArea();
-		myObservable = new ChatObservable();
+		myChatObs = new ChatObservable();
+		myFileObs = new FileObservable();
 		myEncryptObservable = new EncryptObservable();
 		mySendButton = new SendButton();
 		mySettingsButton = new SettingsButton();
@@ -69,6 +71,9 @@ public class ChatPanel extends JPanel{
 	public SimpleAttributeSet getKeyWord() {
 		return keyWord;
 	}
+	public File getFile() {
+		return myFile;
+	}
 	public String getName(){
 		return this.myName;
 	}
@@ -80,14 +85,23 @@ public class ChatPanel extends JPanel{
 		return "#"+Integer.toHexString(aColor.getRGB()).substring(2).toUpperCase();
 	}
 	/**
-	 * Method for returning the observable object
+	 * Method for returning the chat observable object
 	 * @return
 	 */
-	public ChatObservable getObservable(){
-		return myObservable;
+	public ChatObservable getChatObservable(){
+		return myChatObs;
 	}
+	
 	public EncryptObservable getEncryptObservable(){
 		return myEncryptObservable;
+	}	
+	
+	/**
+	 * Method for returning the dile observable object
+	 * @return
+	 */
+	public FileObservable getFileObservable(){
+		return myFileObs;
 	}
 	
 	/**
@@ -117,6 +131,23 @@ public class ChatPanel extends JPanel{
 			setChanged();
 			notifyObservers(myCrypt);
 		}
+	}	
+	
+	/**
+	 * Class for updating observers to send file input by the user
+	 * @author Gustav
+	 *
+	 */
+	class FileObservable extends Observable{
+		
+		/**
+		 * Update observers with string to send
+		 * @param myString
+		 */
+		public void sendUpdate(String myString){
+			setChanged();
+			notifyObservers(myString);
+		}
 	}
 	
 	private class ColorChooser extends JPanel implements ChangeListener{
@@ -143,15 +174,19 @@ public class ChatPanel extends JPanel{
 		}
 		
 		public void actionPerformed(ActionEvent e){
-			String newText = myTextArea.getText();
-			myObservable.sendUpdate(newText);
+			String tempString = myTextArea.getText();
+			Scanner tempScanner = new Scanner(tempString);
+			while(tempScanner.hasNextLine()) {
+				myChatObs.sendUpdate(tempScanner.nextLine());
+			}
+			tempScanner.close();
 			myTextArea.setText(null);
 		}			
 	}
 	
 	private class FileButton extends JButton implements ActionListener{
 		private JFileChooser myFileChooser;
-		private File myFile;
+		private JOptionPane myOptionPane;
 		public FileButton() {
 			this.setText("Send File");
 			this.addActionListener(this);
@@ -160,9 +195,11 @@ public class ChatPanel extends JPanel{
 		
 		public void actionPerformed(ActionEvent e) {
 			int returnValue = myFileChooser.showOpenDialog(null);
+			String input;
 			if (returnValue == JFileChooser.APPROVE_OPTION) {
 				myFile = myFileChooser.getSelectedFile();
-				System.out.println(myFile.getAbsolutePath());
+				input = JOptionPane.showInputDialog("Send message with file: ");
+				myFileObs.sendUpdate(input);
 			}
 		}
 	}
@@ -198,6 +235,7 @@ public class ChatPanel extends JPanel{
 			this.add(colorButton);
 			this.add(nameButton);
 			this.add(myEncryptButton);
+			
 			colorButton.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e){
 					JFrame tempFrame = new JFrame();

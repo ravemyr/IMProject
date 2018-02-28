@@ -1,7 +1,6 @@
 package project;
 /**
- 
-* Viewer
+ * Viewer
  * 
  * Created 2018-02-19
  */
@@ -21,8 +20,10 @@ public class Viewer {
 	private static ArrayList<Tab> myTabList = new ArrayList<Tab>();
 	
 	public static void main(String[] args){
+//		ServerGUI myServerGUI = new ServerGUI();
 		Tab myTab = new Tab();
 		myFrame = new JFrame();
+		myFrame.setTitle("Chat");
 		JPanel myPanel = myTab.getPanel();
 		myTabPane = new JTabbedPane();
 		myTabPane.addTab("Client", myPanel);

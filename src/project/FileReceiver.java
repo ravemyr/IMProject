@@ -38,6 +38,7 @@ public class FileReceiver extends Thread{
 	private NoButton myNoButton;
 	private ReceiverObservable myObservable;
 	private String myName;
+	private JProgressBar myProgressBar;
 	
     /**
      * Constructor
@@ -48,9 +49,6 @@ public class FileReceiver extends Thread{
     	
     	current = 0;
 		String[] stringArray = inMsg.split("\\s");
-	//	for (String a : stringArray) {
-	//		System.out.println(a);
-	//	}
 		int len = stringArray.length;
 		String sender = stringArray[1].substring(7, stringArray[1].length()-1);
 		fileName = stringArray[3].substring(5, stringArray[3].length());
@@ -72,6 +70,7 @@ public class FileReceiver extends Thread{
 		myFrame = new JFrame();
 		myFrame.setTitle("FileReceiver");
 		myFrame.getContentPane().setLayout(new BoxLayout(myFrame.getContentPane(), BoxLayout.Y_AXIS));
+		
 		myTextPane = new JTextPane();
 		myTextPane.setPreferredSize(new Dimension(400,350));
 		myTextPane.setEditable(false);
@@ -83,6 +82,8 @@ public class FileReceiver extends Thread{
 			e.printStackTrace();
 		}
 		
+		myProgressBar = new JProgressBar(0, fileSize);
+		
 		JPanel bringThePane = new JPanel();
 		bringThePane.setLayout(new GridLayout(1, 2));
 		myYesButton = new YesButton();
@@ -90,6 +91,7 @@ public class FileReceiver extends Thread{
 		bringThePane.add(myYesButton);
 		bringThePane.add(myNoButton);
 		
+		myFrame.getContentPane().add(myProgressBar);
 		myFrame.getContentPane().add(myTextPane);
 		myFrame.getContentPane().add(bringThePane);
 		myFrame.pack();
@@ -132,16 +134,18 @@ public class FileReceiver extends Thread{
         		
         		if (bytesRead >= 0) {
         			current += bytesRead;
-        			try {
-        				myDoc.insertString(myDoc.getLength(), (Integer.toString(current)+"\n"), null);
-        			} catch (BadLocationException e) {
-        				e.printStackTrace();
-        			}
+        			myProgressBar.setValue(current);
         		}
         	} while(current < fileSize);
         	
         	bos.write(myByteArray, 0, current);
         	bos.flush();
+        	
+			try {
+				myDoc.insertString(myDoc.getLength(), "Done\n", null);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
 		} 
         catch (IOException e) {
 			e.printStackTrace();
@@ -219,78 +223,6 @@ public class FileReceiver extends Thread{
     	
     }
     
-//	/**
-//	 * Send question to user if it wants to receive file or not
-//	 * @param msg
-//	 * @return
-//	 */
-//	public String askFileAcceptance(String msg) {
-//		String[] stringArray = msg.split("\\s");
-////		for (String a : stringArray) {
-////			System.out.println(a);
-////		}
-//		int len = stringArray.length;
-//		String sender = stringArray[1].substring(7, stringArray[1].length()-1);
-//		String fileName = stringArray[3].substring(5, stringArray[3].length());
-//		String fileSize = stringArray[4].substring(5, stringArray[4].length()-1);
-//		StringBuilder question = new StringBuilder();
-//		question.append(sender);
-//		question.append(" wants to send you file \"");
-//		question.append(fileName);
-//		question.append(" of size \"");
-//		question.append(fileSize);
-//		question.append(". Supplied message: ");
-//		for (int i = 5; i < len - 2; i++) {
-//			question.append(stringArray[i]);
-//		}
-//		
-//		myFileReceiver = new FileReceiver(fileName, Integer.parseInt(fileSize));   ///////////////////////////////////////////////
-//		myFileReceiver.openGUI();
-//		
-//		
-////		int ans = JOptionPane.showConfirmDialog(new JFrame(), question.toString());
-//		
-//		StringBuilder outString = new StringBuilder();
-//		
-//		if (ans == JOptionPane.YES_OPTION) {
-////			myFileReceiver = new FileReceiver(fileName, Integer.parseInt(fileSize));
-////			myFileReceiver.start();
-//			
-//			String respons = JOptionPane.showInputDialog("Leave reply message");
-//			
-//	    	outString.append("<message");
-//			String name = myChatPanel.getName();
-//	    	outString.append(" sender=" + name);
-//	    	outString.append("> ");
-//	    	outString.append("<filerespons");
-//	    	outString.append(" reply=yes");
-//	    	outString.append(" port=" + myFileReceiver.getPort() + "> ");
-//	    	outString.append(respons);
-//	    	outString.append(" </filerespons> ");
-//	    	outString.append("</message> ");
-//	        return outString.toString();
-//		}
-//		else {
-//			
-//			St
-//		    ring respons = JOptionPane.showInputDialog("Leave reply message");
-//			
-//	    	outString.append("<message");
-//			String name = myChatPanel.getName();
-//	    	outString.append(" sender=" + name);
-//	    	outString.append("> ");
-//	    	outString.append("<filerespons");
-//	    	outString.append(" reply=no");
-//	    	outString.append(" port=99999> ");
-//	    	outString.append(respons);
-//	    	outString.append(" </filerespons> ");
-//	    	outString.append("</message> ");
-//	        return outString.toString();
-//		}
-//	}    
-	
-	
-	
-	
+
 	
 }

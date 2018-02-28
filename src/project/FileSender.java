@@ -20,6 +20,7 @@ public class FileSender extends Thread{
 	private byte[] myByteArray;
 	private JTextPane myTextPane;
 	private StyledDocument myDoc;
+	private JProgressBar myProgressBar;
 	
 	public FileSender(File inFile) throws FileNotFoundException{
 		myFile = inFile;
@@ -41,10 +42,14 @@ public class FileSender extends Thread{
 			e.printStackTrace();
 		}
 		
+		
+		myProgressBar = new JProgressBar(0, (int)myFile.length());
 		JScrollPane myScrollPane = new JScrollPane(myTextPane);
 		myScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		myScrollPane.setPreferredSize(new Dimension(400, 350));
 		myScrollPane.setMinimumSize(new Dimension(10, 10));	
+		
+		myFrame.getContentPane().add(myProgressBar);
 		myFrame.getContentPane().add(myScrollPane);
 		myFrame.pack();
 		
@@ -56,7 +61,18 @@ public class FileSender extends Thread{
 		try {
 			bis.read(myByteArray, 0, myByteArray.length);
 			os = clientSocket.getOutputStream();
-			os.write(myByteArray, 0, myByteArray.length);
+			int progress = 0;
+			for (byte b : myByteArray) {
+				os.write(b);
+				progress++;
+				myProgressBar.setValue(progress);
+			}
+			try {
+				myDoc.insertString(myDoc.getLength(), "Done\n", null);
+			} catch (BadLocationException e) {
+				e.printStackTrace();
+			}
+//			os.write(myByteArray, 0, myByteArray.length);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -69,11 +85,6 @@ public class FileSender extends Thread{
 	 */
 	public void display(String str)
 			throws BadLocationException{
-//		SimpleAttributeSet keyWord = new SimpleAttributeSet();
-//		StyleConstants.setForeground(keyWord, Color.RED);
-//		StyleConstants.setBackground(keyWord, Color.YELLOW);
-//		StyleConstants.setBold(keyWord, true);
-		
 		myDoc.insertString(myDoc.getLength(), str, null);
 	}
 	

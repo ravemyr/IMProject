@@ -34,9 +34,11 @@ public class Client extends Thread{
 	        in = new BufferedReader(new InputStreamReader(
 	        		clientSocket.getInputStream()));
 	        String inputLine;
+	        StringBuilder buildUp = new StringBuilder();
 	        while (true) {
 	        	inputLine = in.readLine();
-	        	myObservable.sendUpdate(inputLine);
+	        	buildUp.append(inputLine);
+	        	myObservable.sendUpdate(buildUp.toString());
 	        }
 		} catch (IOException e) {
 			e.printStackTrace();

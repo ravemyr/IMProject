@@ -66,6 +66,7 @@ public class Tab {
 	 *
 	 */
 	private class ChatObserver implements Observer{
+		
 		/**
 		 * If the user wants to send a message, make sure that it is displayed
 		 * and sent to the server
@@ -81,6 +82,7 @@ public class Tab {
 				e.printStackTrace();
 			}
 		}
+		
 		/**
 		 * encodes a written string into valid
 		 * XML-code format for handling
@@ -106,11 +108,13 @@ public class Tab {
 	    		try {
 	    			if(myChatPanel.getType().equals("AES")){
 					encryptedString = Cryptograph.encode(tempString.toString(),
-							myChatPanel.getType(), Base64.getEncoder().encodeToString(myChatPanel.getKey())); //new String(myChatPanel.getKey(),"UTF8")
+							myChatPanel.getType(), Base64.getEncoder()
+								.encodeToString(myChatPanel.getKey())); 
 	    			}
 	    			else if(myChatPanel.getType().equals("Caesar")){
 	    				encryptedString = Cryptograph.encode(tempString.toString(),
-								myChatPanel.getType(), new String(myChatPanel.getKey(),"UTF8"));
+								myChatPanel.getType(), 
+									new String(myChatPanel.getKey(),"UTF8"));
 		    			}
 				} catch (UnsupportedEncodingException e) {
 					// TODO Auto-generated catch block
@@ -144,7 +148,6 @@ public class Tab {
 			try{
 				String verifyStr = verifyType(tempString);
 				System.out.print(tempString);
-				System.out.print(verifyStr);
 				if (verifyStr.equals("filerequest")) {
 //					myFileReceiver = new FileReceiver(tempString);
 					
@@ -207,20 +210,6 @@ public class Tab {
 				System.out.print(e.getMessage());
 			}
 		}
-//			String classType = verifyType(tempString);
-//			System.out.print(classType);
-//			if(classType.equals("text")){
-//				try{
-//					newTempString = verifyMessage(tempString);
-//				}catch(Exception e){
-//					e.printStackTrace();
-//					System.out.print(e.getMessage());
-//				}
-//				try {
-//					myDisplayPanel.display(newTempString + "\n", myKeyWord);     //W THIS SHOULD BE KEYWORD FROM ELSEWHERE */
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
 
 
 		/**
@@ -272,13 +261,13 @@ public class Tab {
     				&&textActive==0)){
         		markerArray.add(i);
         	}
-
     		else if(stringArray[i].startsWith("</text>")){
     			if(i==len-3&&stringArray[len-1].equals("</encrypted>")){
     				textActive = 0;
     				markerArray.add(i);
     			}
-    			else if((i==len-2&&stringArray[len-1].equals("</message>"))||(i==len-3&&stringArray[len-1].equals("</message>"))){
+    			else if((i==len-2&&stringArray[len-1].equals("</message>"))||
+    					(i==len-3&&stringArray[len-1].equals("</message>"))){
     				textActive = 0;
     				markerArray.add(i);
     			}
@@ -345,4 +334,3 @@ public class Tab {
 		return null;
 	}
 }
-

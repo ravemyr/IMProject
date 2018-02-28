@@ -6,8 +6,8 @@ import java.util.Base64;
 import javax.crypto.*;
 public class Cryptograph {
 	/**
-	 * Encodes given string with given crypto and key. If the key should be auto-generated
-	 * The program will override the input and autogenerate a key.
+	 * Encodes given string with given crypto and key. It also ensures that the message is well formed.
+	 * Supports AES and Caesar as of 27-02-2018 
 	 * @param inString
 	 * @param type
 	 * @param Key
@@ -33,9 +33,6 @@ public class Cryptograph {
 						try{
 							thisString = String.format("%02x",(int)alphabet[(indexOf(alphabet,b)
 									+Integer.parseInt(Key))%alphabet.length]);
-							
-//							encodedString.append(alphabet[(indexOf(alphabet,b)
-//									+Integer.parseInt(Key))%alphabet.length]);
 							encodedString.append(thisString);
 							used = 1;
 							break;
@@ -47,7 +44,6 @@ public class Cryptograph {
 				if(used==0){
 					thisString = String.format("%02x", (int)a);
 					encodedString.append(thisString);
-				
 				}
 			}
 		}
@@ -57,7 +53,6 @@ public class Cryptograph {
 			}
 			encodedString.append(">");
 			encodedString.append(" ");
-//			encodedString.append(String.format("%02x", Integer.parseInt(Key)));
 			byte[] keyContent = Base64.getDecoder().decode(Key);
 			SecretKeySpec AESkey = new SecretKeySpec(keyContent,0,keyContent.length, "AES");
 			System.out.println(keyContent);
@@ -67,7 +62,6 @@ public class Cryptograph {
 			byte[] cipherData = AEScipher.doFinal(inString.getBytes());
 			for(byte b: cipherData){
 				encodedString.append(String.format("%02x", b));
-//				encodedString.append(cipherData.toString());
 			}
 		}
 		else{
@@ -77,6 +71,13 @@ public class Cryptograph {
 		return encodedString.toString();
 		
 	}
+	/**
+	 * Decodes received string with given encryption and key in hexadecimal. 
+	 * Supports AES and Caesar encryption as of 27-02-2018.
+	 * @param inString
+	 * @return
+	 * @throws Exception
+	 */
 	public static String decode(String inString) throws Exception{
 		StringBuilder decodedString = new StringBuilder();
 		String[] splitString = inString.split("\\s");
@@ -128,11 +129,7 @@ public class Cryptograph {
 				if(used==0){
 					decodedString.append(a);
 				}
-			}
-			decodedString.append(splitString[splitString.length-2]);
-			decodedString.append(" ");
-			
-			decodedString.append(splitString[splitString.length-1]);
+			}	
 		}
 		else if(type.equals("AES")){
 			String neuKey = unHex(Key);
@@ -147,18 +144,23 @@ public class Cryptograph {
 			byte[] decryptedData;
 			decryptedData = AEScipher.doFinal(encoded);
 		    decodedString.append(new String(decryptedData,"UTF8"));
-			decodedString.append(splitString[splitString.length-2]);
-			decodedString.append(" ");
-			
-			decodedString.append(splitString[splitString.length-1]);
 		}
 		else{
 			throw new Exception("Not a valid encryption");
 		}
-
+		decodedString.append(splitString[splitString.length-2]);
+		decodedString.append(" ");
+		decodedString.append(splitString[splitString.length-1]);
 		return decodedString.toString();
 		
 	}
+	/**
+	 * Returns index of given character in an array. Assumes existence of character in array.
+	 * @param array
+	 * @param control
+	 * @return
+	 * @throws Exception
+	 */
 	public static int indexOf(char[] array, char control) throws Exception{
 		for(int j=0;j<array.length;j++){
 			if(array[j]==control){
@@ -167,6 +169,11 @@ public class Cryptograph {
 		}
 		throw new Exception("Non-valid arguments for encryption");
 	}
+	/**
+	 * Converts a string of Hexadecimal into string of characters.
+	 * @param arg
+	 * @return
+	 */
 	public static String unHex(String arg) {        
 	    String str = "";
 	    for(int i=0;i<arg.length();i+=2)
@@ -177,6 +184,11 @@ public class Cryptograph {
 	    }       
 	    return str;
 	}
+	/**
+	 * Converts a string of hexadecimal into a byte-array.
+	 * @param s
+	 * @return
+	 */
 	public static byte[] hexStringToByteArray(String s) {
 	    int len = s.length();
 	    byte[] data = new byte[len / 2];
@@ -185,20 +197,5 @@ public class Cryptograph {
 	                             + Character.digit(s.charAt(i+1), 16));
 	    }
 	    return data;
-	}
-	public static void main(String[] args){
-		StringBuilder thisone = new StringBuilder();
-		try {
-			byte[] testBytes = "Hello there".getBytes("UTF8");
-			for(byte b: testBytes){
-				thisone.append(String.format("%02x", b));
-			}
-			System.out.println(new String(testBytes,"UTF8"));
-			System.out.println(thisone.toString());
-			System.out.println(new String(hexStringToByteArray(thisone.toString()),"UTF8"));
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }

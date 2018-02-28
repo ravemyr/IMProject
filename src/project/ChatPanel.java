@@ -1,4 +1,6 @@
+package project;
 /**
+
  * ChatPanel
  * 
  * Created 2018-02-19
@@ -76,9 +78,7 @@ public class ChatPanel extends JPanel{
 	public String getHexColor(){
 		Color aColor = this.myColor;
 		return "#"+Integer.toHexString(aColor.getRGB()).substring(2).toUpperCase();
-		
 	}
-	
 	/**
 	 * Method for returning the observable object
 	 * @return
@@ -106,6 +106,12 @@ public class ChatPanel extends JPanel{
 			notifyObservers(myString);
 		}
 	}
+	
+	/**
+	 * Update on ecrypted type and Key.
+	 * @author Emanuel
+	 *
+	 */
 	class EncryptObservable extends Observable{
 		public void sendUpdate(String myCrypt){
 			setChanged();
@@ -208,6 +214,7 @@ public class ChatPanel extends JPanel{
 				}
 			});
 			
+			//Encryption choices
 			myEncryptButton.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e){
 					int n;

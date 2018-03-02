@@ -19,6 +19,7 @@ public class ServerGUI extends JFrame{
 	private byte[] myKey;
 	private boolean encrypted;
 	private String encryptType;
+	private EncryptButton myEncryptButton;
 	
 	public static void main(String[] args) {
 		ServerGUI myServerGUI = new ServerGUI();
@@ -36,13 +37,15 @@ public class ServerGUI extends JFrame{
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JPanel bringThePane = new JPanel();
-		bringThePane.setLayout(new BoxLayout(bringThePane, BoxLayout.Y_AXIS));
+		bringThePane.setLayout(new BoxLayout(bringThePane, BoxLayout.X_AXIS));
 		
 		myServer = new Server();
 		myServer.start();
 		
 		myFileButton = new FileButton();
+		myEncryptButton = new EncryptButton();
 		bringThePane.add(myFileButton);
+		bringThePane.add(myEncryptButton);
 		
 		this.add(bringThePane);
 		this.pack();

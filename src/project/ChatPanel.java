@@ -256,7 +256,7 @@ public class ChatPanel extends JPanel{
 			myEncryptButton.addActionListener(new ActionListener(){
 				public void actionPerformed(ActionEvent e){
 					int n;
-					Object[] options = {"Caesar","AES","Cancel"};
+					Object[] options = {"Caesar","AES","None","Cancel"};
 					n = JOptionPane.showOptionDialog(new JFrame(),
 						    "What type of encryption would you want?",
 						    "Encryption selection",
@@ -264,7 +264,7 @@ public class ChatPanel extends JPanel{
 						    JOptionPane.QUESTION_MESSAGE,
 						    null,
 						    options,
-						    options[2]);
+						    options[3]);
 					if(n==0){
 						System.out.print("This");
 						String keyCode = JOptionPane.showInputDialog("Enter integer key");
@@ -290,6 +290,9 @@ public class ChatPanel extends JPanel{
 						myKey = AESkey.getEncoded();
 						encryptType = "AES";
 						encrypted = true;
+					}
+					else if(n==2){
+						encrypted = false;
 					}
 				}
 			});

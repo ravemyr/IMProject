@@ -59,7 +59,7 @@ public class ServerGUI extends JFrame{
 		}
 		public void actionPerformed(ActionEvent e){
 			int n;
-			Object[] options = {"Caesar","AES","Cancel"};
+			Object[] options = {"Caesar","AES","None","Cancel"};
 			n = JOptionPane.showOptionDialog(new JFrame(),
 				    "What type of encryption would you want?",
 				    "Encryption selection",
@@ -93,6 +93,9 @@ public class ServerGUI extends JFrame{
 				myKey = AESkey.getEncoded();
 				encryptType = "AES";
 				encrypted = true;
+			}
+			else if(n==2){
+				encrypted = false;
 			}
 		}
 	}
@@ -149,8 +152,13 @@ public class ServerGUI extends JFrame{
 		    	outString.append(" name=" + myFile.getName());
 		    	outString.append(" size=" + myFile.length());
 		    	outString.append(" type=" + encryptType);
-		    	outString.append(" key=" + Base64.getEncoder()
-						.encodeToString(myKey));
+		    	if(encrypted){
+		    		outString.append(" key=" + Base64.getEncoder()
+							.encodeToString(myKey));
+		    	}
+		    	else{
+		    		outString.append(" key=");
+		    	}
 		    	outString.append("> ");
 		    	outString.append(input);
 		    	outString.append(" </filerequest> ");

@@ -1,6 +1,11 @@
 package project;
 import javax.crypto.spec.*;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
@@ -55,9 +60,7 @@ public class Cryptograph {
 			encodedString.append(">");
 			encodedString.append(" ");
 			byte[] keyContent = Base64.getDecoder().decode(Key);
-			SecretKeySpec AESkey = new SecretKeySpec(keyContent,0,keyContent.length, "AES");
-			System.out.println(keyContent);
-			
+			SecretKeySpec AESkey = new SecretKeySpec(keyContent,0,keyContent.length, "AES");			
 			Cipher AEScipher = Cipher.getInstance("AES");
 			AEScipher.init(Cipher.ENCRYPT_MODE, AESkey);
 			byte[] cipherData = AEScipher.doFinal(inString.getBytes());
@@ -130,9 +133,7 @@ public class Cryptograph {
 		else if(type.equals("AES")){
 			String neuKey = unHex(Key);
 			byte[] keyContent = Base64.getDecoder().decode(neuKey);
-			String encodedString = unHex(splitString[5]);
 			byte[] encoded = hexStringToByteArray(splitString[5]);
-			inString = encodedString;
 			SecretKeySpec decodeKey = new SecretKeySpec(keyContent, "AES");
 			Cipher AEScipher = Cipher.getInstance("AES");
 			AEScipher.init(Cipher.DECRYPT_MODE, decodeKey);
@@ -162,7 +163,6 @@ public class Cryptograph {
 		byte[] encoded = null;	
 		if(type.equals("Caesar")){
 			String inString = new String(bytesIn,"UTF-8");
-			System.out.println(inString);
 			StringBuilder runningCrypto = new StringBuilder();
 			int Keyint = Integer.parseInt(Key)%alphabet.length;
 			for(int i = 0; i < inString.length(); i++){
@@ -294,13 +294,29 @@ public class Cryptograph {
 	    return data;
 	}
 	public static void main(String[] args){
-		String test = "Ywaflfwienbw blaloweöobwe";
+		File myFile = new File("C:\\Users\\Emanuel\\Documents\\KTH\\MATLAB");
+		BufferedInputStream testing = null;
+		try {
+			testing = new BufferedInputStream(new FileInputStream(myFile));
+		} catch (FileNotFoundException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		byte[] fileArr = new byte[(int)myFile.length()];
+		try {
+			testing.read(fileArr,0,fileArr.length);
+			testing.close();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		byte[] sendByte = null;
 		byte[] testByte = null;
 		byte[] finalResult = null;
 		try {
-			testByte = test.getBytes("UTF-8");
-			sendByte = Cryptograph.encryptFile(testByte, "Caesar", "113");
+//			testByte = test.getBytes("UTF-8");
+			sendByte = Cryptograph.encryptFile(fileArr, "Caesar", "113");
 			finalResult = Cryptograph.decryptFile(sendByte, "Caesar", "113");
 			System.out.print(new String(finalResult,"UTF-8"));
 		} catch (Exception e) {

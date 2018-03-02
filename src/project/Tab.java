@@ -107,40 +107,55 @@ public class Tab {
 	    	outString.append("> ");
 	    	outString.append("<filerequest");
 	    	File tempFile = myChatPanel.getFile();
-
 	    	outString.append(" name=" + tempFile.getName());
-	    	outString.append(" size=" + tempFile.length());
+	    	
 	    	String encryptionType;
 	    	String encryptionKey;
-	    	if(myChatPanel.isEncrypted()){
-	    		encryptionType = myChatPanel.getEncryptType();
-	    		if (encryptionType.equals("AES")){
-	    			encryptionKey = Base64.getEncoder()
-						.encodeToString(myChatPanel.getKey());
-	    		}
-	    		else{
-	    			encryptionKey = new String(myChatPanel.getKey(),"UTF8");
-	    		}
-	 	    	outString.append(" type=" + encryptionType);
-	   		 	outString.append(" key=" + encryptionKey);
-	    	}
-	    	else{
-	    		encryptionType = "None";
-	    		encryptionKey = "";
-		    	outString.append(" type=" + encryptionType);
-		    	outString.append(" key=");
-	    	}
-	    	outString.append("> ");
-	    	outString.append(inString);
-	    	outString.append(" </filerequest> ");
-	    	outString.append("</message> ");
 	    	
-	    	try {
-//	    		myFileTransferGUI = new FileTransferGUI(outString.toString(),  tempFile);
-				myFileSender = new FileSender(tempFile, encryptionType, encryptionKey);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}	    	
+	    	try{
+	    	byte[] tempFileArray = new byte[(int)tempFile.length()];
+	    		BufferedInputStream tempBis = new BufferedInputStream(new FileInputStream(tempFile));
+	    		tempBis.read(tempFileArray, 0, tempFileArray.length);
+	    		tempBis.close();
+	    		byte[] outArray;
+		    	if(myChatPanel.isEncrypted()){
+		    		encryptionType = myChatPanel.getEncryptType();
+		    		if (encryptionType.equals("AES")){
+		    			encryptionKey = Base64.getEncoder()
+							.encodeToString(myChatPanel.getKey());
+		    		}
+		    		else{
+		    			encryptionKey = new String(myChatPanel.getKey(),"UTF8");
+		    		}
+		    		
+		    		outArray = Cryptograph.encryptFile(tempFileArray, encryptionType, encryptionKey);
+		    		outString.append(" size=" + outArray.length);
+		    		
+		    		
+		 	    	outString.append(" type=" + encryptionType);
+		   		 	outString.append(" key=" + encryptionKey);
+		    	}
+		    	else{
+		    		encryptionType = "None";
+		    		encryptionKey = "";
+		    		
+		    		outArray = tempFileArray;
+		    		outString.append(" size=" + outArray.length);
+		    		
+			    	outString.append(" type=" + encryptionType);
+			    	outString.append(" key=");
+		    	}
+		    	
+		    	outString.append("> ");
+		    	outString.append(inString);
+		    	outString.append(" </filerequest> ");
+		    	outString.append("</message> ");
+		    	
+		    	myFileSender = new FileSender(outArray);		    	
+		    	
+	    	}catch(Exception e){
+	    		e.printStackTrace();
+	    	}
 	        return outString.toString();
 		}
 	}

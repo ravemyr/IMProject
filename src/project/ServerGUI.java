@@ -1,6 +1,8 @@
 package project;
 import java.awt.event.*;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -95,6 +97,7 @@ public class ServerGUI extends JFrame{
 				encrypted = true;
 			}
 			else if(n==2){
+				encryptType = "None";
 				encrypted = false;
 			}
 		}
@@ -138,32 +141,64 @@ public class ServerGUI extends JFrame{
 		public void actionPerformed(ActionEvent e) {
 			int returnValue = myFileChooser.showOpenDialog(null);
 			String input;
-			if (returnValue == JFileChooser.APPROVE_OPTION) {
-				myFile = myFileChooser.getSelectedFile();
-				input = JOptionPane.showInputDialog("Send message with file: ");
-				targetClient.setFileSender(myFile);
+			try{
+				if (returnValue == JFileChooser.APPROVE_OPTION) {
+					myFile = myFileChooser.getSelectedFile();
+					input = JOptionPane.showInputDialog("Send message with file: ");
+					
+					StringBuilder outString = new StringBuilder();
+			    	outString.append("<message");
+					String name = "Server";
+			    	outString.append(" sender=" + name);
+			    	outString.append("> ");
+			    	outString.append("<filerequest");
+			    	outString.append(" name=" + myFile.getName());					
+					
+					
+					String tempKey;
+					if (myKey == null){
+						tempKey = "";
+					}
+					else if (encryptType.equals("AES")){
+						tempKey = Base64.getEncoder().encodeToString(myKey);
+					}
+					else{
+						tempKey = new String(myKey,"UTF8");
+					}
 				
-				StringBuilder outString = new StringBuilder();
-		    	outString.append("<message");
-				String name = "Server";
-		    	outString.append(" sender=" + name);
-		    	outString.append("> ");
-		    	outString.append("<filerequest");
-		    	outString.append(" name=" + myFile.getName());
-		    	outString.append(" size=" + myFile.length());
-		    	outString.append(" type=" + encryptType);
-		    	if(encrypted){
-		    		outString.append(" key=" + Base64.getEncoder()
-							.encodeToString(myKey));
-		    	}
-		    	else{
-		    		outString.append(" key=");
-		    	}
-		    	outString.append("> ");
-		    	outString.append(input);
-		    	outString.append(" </filerequest> ");
-		    	outString.append("</message> ");
-		        targetClient.sendMessage(outString.toString());
+			    	byte[] tempFileArray = new byte[(int)myFile.length()];
+		    		BufferedInputStream tempBis = new BufferedInputStream(new FileInputStream(myFile));
+		    		tempBis.read(tempFileArray, 0, tempFileArray.length);
+		    		tempBis.close();
+		    		byte[] outArray;
+			    	if(!encryptType.equals("None")){
+			    		
+			    		outArray = Cryptograph.encryptFile(tempFileArray, encryptType, tempKey);
+			    		outString.append(" size=" + outArray.length);
+			    		
+			    		
+			 	    	outString.append(" type=" + encryptType);
+			   		 	outString.append(" key=" + tempKey);
+			    	}
+			    	else{
+			    		
+			    		outArray = tempFileArray;
+			    		outString.append(" size=" + outArray.length);
+			    		
+				    	outString.append(" type=" + encryptType);
+				    	outString.append(" key=");
+			    	}
+			    	
+			    	outString.append("> ");
+			    	outString.append(input);
+			    	outString.append(" </filerequest> ");
+			    	outString.append("</message> ");
+				
+			    	targetClient.setFileSender(outArray);
+			    	targetClient.sendMessage(outString.toString());
+				}
+			}catch(Exception e1){
+				e1.printStackTrace();
 			}
 		}
 	}

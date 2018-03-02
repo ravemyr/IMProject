@@ -138,7 +138,7 @@ public class Cryptograph {
 			AEScipher.init(Cipher.DECRYPT_MODE, decodeKey);
 			byte[] decryptedData;
 			decryptedData = AEScipher.doFinal(encoded);
-		    decodedString.append(new String(decryptedData,"UTF8"));
+		    decodedString.append(new String(decryptedData,"UTF-8"));
 		}
 		else{
 			throw new Exception("Not a valid encryption");
@@ -161,7 +161,8 @@ public class Cryptograph {
 	public static byte[] encryptFile(byte[] bytesIn,String type, String Key) throws Exception{
 		byte[] encoded = null;	
 		if(type.equals("Caesar")){
-			String inString = new String(bytesIn);
+			String inString = new String(bytesIn,"UTF-8");
+			System.out.println(inString);
 			StringBuilder runningCrypto = new StringBuilder();
 			int Keyint = Integer.parseInt(Key)%alphabet.length;
 			for(int i = 0; i < inString.length(); i++){
@@ -171,7 +172,7 @@ public class Cryptograph {
 					if(b==a){
 						try {
 							runningCrypto.append(alphabet[(indexOf(alphabet,b)
-									+Integer.parseInt(Key))%alphabet.length]);
+									+Keyint)%alphabet.length]);
 								used = 1;
 								break;
 						} catch (Exception e) {
@@ -184,7 +185,7 @@ public class Cryptograph {
 					runningCrypto.append(a);
 				}
 			}
-			encoded = runningCrypto.toString().getBytes();
+			encoded = runningCrypto.toString().getBytes("UTF-8");
 		}
 		else if(type.equals("AES")){
 			byte[] keyContent = Base64.getDecoder().decode(Key);
@@ -198,12 +199,12 @@ public class Cryptograph {
 		}
 		return encoded;
 	}
-	public static byte[] decryptFile(byte[] bytesIn,String type, String Key) throws Exception{
+	public static byte[] decryptFile(byte[] bytesIn, String type, String Key) throws Exception{
 		byte[] decoded = null;
 		if(type.equals("Caesar")){
-			
 			int Keyint = Integer.parseInt(Key)%alphabet.length;
-			String inString = new String(bytesIn, "UTF8");
+			String inString = new String(bytesIn, "UTF-8");
+			System.out.println(inString);
 			StringBuilder decodedString = new StringBuilder();
 			for(int i = 0; i < inString.length(); i++){
 				char a = inString.charAt(i);
@@ -233,8 +234,11 @@ public class Cryptograph {
 						}
 					}
 				}
+				if(used==0){
+					decodedString.append(a);
+				}
 			}
-			decoded = decodedString.toString().getBytes();
+			decoded = decodedString.toString().getBytes("UTF-8");
 		}
 		else if(type.equals("AES")){
 			byte[] keyContent = Base64.getDecoder().decode(Key);
@@ -288,5 +292,20 @@ public class Cryptograph {
 	                             + Character.digit(s.charAt(i+1), 16));
 	    }
 	    return data;
+	}
+	public static void main(String[] args){
+		String test = "Ywaflfwienbw blaloweöobwe";
+		byte[] sendByte = null;
+		byte[] testByte = null;
+		byte[] finalResult = null;
+		try {
+			testByte = test.getBytes("UTF-8");
+			sendByte = Cryptograph.encryptFile(testByte, "Caesar", "113");
+			finalResult = Cryptograph.decryptFile(sendByte, "Caesar", "113");
+			System.out.print(new String(finalResult,"UTF-8"));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

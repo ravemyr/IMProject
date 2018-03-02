@@ -43,7 +43,7 @@ public class Tab {
 		myDisplayPanel = new DisplayPanel();
 		myClient = new Client();
 		
-		myIP = "127.0.0.1";
+		myIP = "130.229.131.100";
 		myClient.startConnection(myIP, 4000);
 		
 		myPanel = new JPanel();
@@ -97,8 +97,9 @@ public class Tab {
 		 * XML-code format for handling
 		 * @param inString
 		 * @return
+		 * @throws UnsupportedEncodingException 
 		 */
-		private String encodeString(String inString){
+		private String encodeString(String inString) throws UnsupportedEncodingException{
 			StringBuilder outString = new StringBuilder();
 	    	outString.append("<message");
 			String name = myChatPanel.getName();
@@ -110,13 +111,23 @@ public class Tab {
 	    	outString.append(" name=" + tempFile.getName());
 	    	outString.append(" size=" + tempFile.length());
 	    	String encryptionType;
+	    	String encryptionKey;
 	    	if(myChatPanel.isEncrypted()){
-	 	    	outString.append(" type=" + myChatPanel.getEncryptType());
-	   		 	outString.append(" key=" + Base64.getEncoder()
-					.encodeToString(myChatPanel.getKey()));
+	    		encryptionType = myChatPanel.getEncryptType();
+	    		if (encryptionType.equals("AES")){
+	    			encryptionKey = Base64.getEncoder()
+						.encodeToString(myChatPanel.getKey());
+	    		}
+	    		else{
+	    			encryptionKey = new String(myChatPanel.getKey(),"UTF8");
+	    		}
+	 	    	outString.append(" type=" + encryptionType);
+	   		 	outString.append(" key=" + encryptionKey);
 	    	}
 	    	else{
-		    	outString.append(" type=" + "None");
+	    		encryptionType = "None";
+	    		encryptionKey = "";
+		    	outString.append(" type=" + encryptionType);
 		    	outString.append(" key=");
 	    	}
 	    	outString.append("> ");
@@ -126,7 +137,7 @@ public class Tab {
 	    	
 	    	try {
 //	    		myFileTransferGUI = new FileTransferGUI(outString.toString(),  tempFile);
-				myFileSender = new FileSender(tempFile);
+				myFileSender = new FileSender(tempFile, encryptionType, encryptionKey);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}	    	

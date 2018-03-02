@@ -111,15 +111,14 @@ public class Tab {
 	    	outString.append(" size=" + tempFile.length());
 	    	String encryptionType;
 	    	if(myChatPanel.isEncrypted()){
-	    		 encryptionType = myChatPanel.getEncryptType();
+	 	    	outString.append(" type=" + myChatPanel.getEncryptType());
+	   		 	outString.append(" key=" + Base64.getEncoder()
+					.encodeToString(myChatPanel.getKey()));
 	    	}
 	    	else{
-	    		encryptionType = "None";
+		    	outString.append(" type=" + "None");
+		    	outString.append(" key=");
 	    	}
-	    	outString.append(" type=" + encryptionType);
-	    	
-	    	outString.append(" key=" + Base64.getEncoder()
-					.encodeToString(myChatPanel.getKey()));
 	    	outString.append("> ");
 	    	outString.append(inString);
 	    	outString.append(" </filerequest> ");

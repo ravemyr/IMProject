@@ -137,7 +137,6 @@ public class Cryptograph {
 			byte[] keyContent = Base64.getDecoder().decode(neuKey);
 			String encodedString = unHex(splitString[5]);
 			byte[] encoded = hexStringToByteArray(splitString[5]);
-			System.out.println("This is: "+ new String(encoded,"UTF8"));
 			inString = encodedString;
 			SecretKeySpec decodeKey = new SecretKeySpec(keyContent, "AES");
 			Cipher AEScipher = Cipher.getInstance("AES");
@@ -154,6 +153,119 @@ public class Cryptograph {
 		decodedString.append(splitString[splitString.length-1]);
 		return decodedString.toString();
 		
+	}
+	public static byte[] encryptFile(byte[] bytesIn,String type, String Key) throws Exception{
+		byte[] encoded = null;	
+		if(type.equals("Caesar")){
+			String inString = new String(bytesIn);
+			StringBuilder runningCrypto = new StringBuilder();
+			char[] alphabet ={'a','b','c','d','e','f','g','h','i','j','k','l','m',
+					'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö','A','B',
+					'C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W',
+					'X','Y','Z','Å','Ä','Ö','0','1','2','3',
+					'4','5','6','7','8','9','!','?',')','(','=','>','<','/','&','%','#','@','$','[',']'};
+			int Keyint = Integer.parseInt(Key)%alphabet.length;
+			for(int i = 0; i < inString.length(); i++){
+				char a = inString.charAt(i);
+				int used = 0;
+				for(char b: alphabet){
+					if(b==a){
+						try {
+							if(indexOf(alphabet,b)<Keyint){
+								try{
+									runningCrypto.append(
+											alphabet[(alphabet.length-
+													Keyint+indexOf(alphabet,b))]);
+									used = 1;
+									break;
+								}catch(Exception c){
+									System.out.print(c.getMessage());
+								}
+							}
+							else{
+								try{
+									runningCrypto.append(alphabet[(indexOf(alphabet,b)
+											-Keyint)]);
+									used = 1;
+									break;
+								}catch(Exception c){
+									System.out.print(c.getMessage());
+								}
+							}
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				if(used==0){
+					runningCrypto.append(a);
+				}
+			}
+			encoded = runningCrypto.toString().getBytes();
+		}
+		else if(type.equals("AES")){
+			byte[] keyContent = Base64.getDecoder().decode(Key);
+			SecretKeySpec AESkey = new SecretKeySpec(keyContent,0,keyContent.length, "AES");			
+			Cipher AEScipher = Cipher.getInstance("AES");
+			AEScipher.init(Cipher.ENCRYPT_MODE, AESkey);
+			encoded = AEScipher.doFinal(bytesIn);
+		}
+		else{
+			throw new Exception("Unknown encryption");
+		}
+		return encoded;
+	}
+	public static byte[] decryptFile(byte[] bytesIn,String type, String Key) throws Exception{
+		byte[] decoded = null;
+		if(type.equals("Caesar")){
+			char[] alphabet ={'a','b','c','d','e','f','g','h','i','j','k','l','m',
+					'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö','A','B',
+					'C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W',
+					'X','Y','Z','Å','Ä','Ö','0','1','2','3',
+					'4','5','6','7','8','9','!','?',')','(','=','>','<','/','&','%','#','@','$','[',']'};
+			int Keyint = Integer.parseInt(Key)%alphabet.length;
+			String inString = new String(bytesIn, "UTF8");
+			StringBuilder decodedString = new StringBuilder();
+			for(int i = 0; i < inString.length(); i++){
+				char a = inString.charAt(i);
+				int used = 0;
+				for(char b: alphabet){
+					if(b==a){
+						if(indexOf(alphabet,b)<Keyint){
+							try{
+								decodedString.append(
+										alphabet[(alphabet.length-
+												Keyint+indexOf(alphabet,b))]);
+								used = 1;
+								break;
+							}catch(Exception c){
+								System.out.print(c.getMessage());
+							}
+						}
+						else{
+							try{
+								decodedString.append(alphabet[(indexOf(alphabet,b)
+										-Keyint)]);
+								used = 1;
+								break;
+							}catch(Exception c){
+								System.out.print(c.getMessage());
+							}
+						}
+					}
+				}
+			}
+			decoded = decodedString.toString().getBytes();
+		}
+		else if(type.equals("AES")){
+			byte[] keyContent = Base64.getDecoder().decode(Key);
+			SecretKeySpec decodeKey = new SecretKeySpec(keyContent, "AES");
+			Cipher AEScipher = Cipher.getInstance("AES");
+			AEScipher.init(Cipher.DECRYPT_MODE, decodeKey);
+			decoded = AEScipher.doFinal(bytesIn);
+		}
+		return decoded;
 	}
 	/**
 	 * Returns index of given character in an array. Assumes existence of character in array.

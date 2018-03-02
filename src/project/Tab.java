@@ -8,6 +8,8 @@ package project;
 
 import java.awt.*;
 import java.io.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.text.SimpleAttributeSet;
@@ -38,13 +40,18 @@ public class Tab {
 	/**
 	 * Constructor. Connects to server, creates panel and adds observers
 	 */
-	public Tab(){
+	public Tab(String myPort){
 		myChatPanel = new ChatPanel();
 		myDisplayPanel = new DisplayPanel();
 		myClient = new Client();
 		
-		myIP = "130.229.131.100";
-		myClient.startConnection(myIP, 4000);
+		try {
+			myIP = InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		myClient.startConnection(myIP, Integer.parseInt(myPort));
 		
 		myPanel = new JPanel();
 //		myPanel.setLayout(new GridLayout(2,1,10,10));
@@ -64,6 +71,30 @@ public class Tab {
 		myChatPanel.getEncryptObservable().addObserver(myEncryptObserver);
 	}
 	
+	public Tab(String myIP,String myPort){
+		myChatPanel = new ChatPanel();
+		myDisplayPanel = new DisplayPanel();
+		myClient = new Client();
+		
+		myClient.startConnection(myIP, Integer.parseInt(myPort));
+		
+		myPanel = new JPanel();
+//		myPanel.setLayout(new GridLayout(2,1,10,10));
+		myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+		myPanel.add(myDisplayPanel);
+		myPanel.add(myChatPanel);
+		
+		myChatObserver = new ChatObserver();
+		myClientObserver = new ClientObserver();
+		myFileObserver = new FileObserver();
+		myEncryptObserver = new EncryptObserver();
+		
+		
+		myChatPanel.getChatObservable().addObserver(myChatObserver);
+		myChatPanel.getFileObservable().addObserver(myFileObserver);
+		myClient.getObservable().addObserver(myClientObserver);
+		myChatPanel.getEncryptObservable().addObserver(myEncryptObserver);
+	}
 	/**
 	 * Returns the UI as a JPanel
 	 * @return

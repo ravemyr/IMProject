@@ -61,7 +61,7 @@ public class FileReceiver extends Thread{
 		question.append("\" of size \"");
 		question.append(fileSize);
 		question.append("\". Supplied message: ");
-		for (int i = 5; i < len - 2; i++) {
+		for (int i = 7; i < len - 2; i++) {
 			question.append(stringArray[i]);
 			question.append(" ");
 		}

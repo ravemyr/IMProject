@@ -204,7 +204,6 @@ public class Cryptograph {
 		if(type.equals("Caesar")){
 			int Keyint = Integer.parseInt(Key)%alphabet.length;
 			String inString = new String(bytesIn, "UTF-8");
-			System.out.println(inString);
 			StringBuilder decodedString = new StringBuilder();
 			for(int i = 0; i < inString.length(); i++){
 				char a = inString.charAt(i);

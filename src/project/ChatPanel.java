@@ -298,14 +298,14 @@ public class ChatPanel extends JPanel{
 	public byte[] getKey(){
 		return myKey;
 	}
-	public void setType(String inString){
+	public void setEncryptType(String inString){
 		if(inString.equals("AES"))
 			encryptType = inString;
 		else if(inString.equals("Caesar")){
 			encryptType = inString;
 		}
 	}
-	public String getType(){
+	public String getEncryptType(){
 		return encryptType;
 	}
 	public boolean isEncrypted(){

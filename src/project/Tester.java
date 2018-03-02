@@ -7,7 +7,7 @@ import java.io.*;
 
 public class Tester {
 	public static void main(String[] args){
-		System.out.println(System.getProperty("user.dir"));
+//		System.out.println(System.getProperty("user.dir"));
 		
 //		Client client1 = new Client();
 //		try {

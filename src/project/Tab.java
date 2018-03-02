@@ -43,7 +43,7 @@ public class Tab {
 		myDisplayPanel = new DisplayPanel();
 		myClient = new Client();
 		
-		myIP = "10.0.0.144";
+		myIP = "127.0.0.1";
 		myClient.startConnection(myIP, 4000);
 		
 		myPanel = new JPanel();
@@ -109,6 +109,17 @@ public class Tab {
 
 	    	outString.append(" name=" + tempFile.getName());
 	    	outString.append(" size=" + tempFile.length());
+	    	String encryptionType;
+	    	if(myChatPanel.isEncrypted()){
+	    		 encryptionType = myChatPanel.getEncryptType();
+	    	}
+	    	else{
+	    		encryptionType = "None";
+	    	}
+	    	outString.append(" type=" + encryptionType);
+	    	
+	    	outString.append(" key=" + Base64.getEncoder()
+					.encodeToString(myChatPanel.getKey()));
 	    	outString.append("> ");
 	    	outString.append(inString);
 	    	outString.append(" </filerequest> ");
@@ -165,17 +176,17 @@ public class Tab {
 	    	tempString.append(" </text> ");
 	    	System.out.print("Am I here?");
 	    	if(myChatPanel.isEncrypted()){
-	    		System.out.println(myChatPanel.getType());
+	    		System.out.println(myChatPanel.getEncryptType());
 	    		String encryptedString = null;
 	    		try {
-	    			if(myChatPanel.getType().equals("AES")){
+	    			if(myChatPanel.getEncryptType().equals("AES")){
 					encryptedString = Cryptograph.encode(tempString.toString(),
-							myChatPanel.getType(), Base64.getEncoder()
+							myChatPanel.getEncryptType(), Base64.getEncoder()
 								.encodeToString(myChatPanel.getKey())); 
 	    			}
-	    			else if(myChatPanel.getType().equals("Caesar")){
+	    			else if(myChatPanel.getEncryptType().equals("Caesar")){
 	    				encryptedString = Cryptograph.encode(tempString.toString(),
-								myChatPanel.getType(), 
+								myChatPanel.getEncryptType(), 
 									new String(myChatPanel.getKey(),"UTF8"));
 		    			}
 				} catch (UnsupportedEncodingException e) {

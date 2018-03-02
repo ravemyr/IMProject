@@ -13,20 +13,27 @@ import javax.swing.text.StyledDocument;
 public class FileSender extends Thread{
 	private JFrame myFrame;
 	private Socket clientSocket;
-	private FileInputStream fis;
-	private BufferedInputStream bis;
+//	private FileInputStream fis;
+//	private BufferedInputStream bis;
 	private OutputStream os;
-	private File myFile;
+//	private File myFile;
+//	private String myFileName;
 	private byte[] myByteArray;
 	private JTextPane myTextPane;
 	private StyledDocument myDoc;
 	private JProgressBar myProgressBar;
+	private String myEncryptionType;
+	private String myEncryptionKey;
 	
-	public FileSender(File inFile) throws FileNotFoundException{
-		myFile = inFile;
-		myByteArray = new byte[(int)myFile.length()];
-		fis = new FileInputStream(myFile);
-		bis = new BufferedInputStream(fis);
+	public FileSender(byte[] inArray) {
+//		myFile = inFile;
+		
+//		myEncryptionType = inType;
+//		myEncryptionKey = inKey;
+//		myByteArray = new byte[(int)myFile.length()];
+		myByteArray = inArray;
+//		fis = new FileInputStream(myFile);
+//		bis = new BufferedInputStream(fis);
 		
 		myFrame = new JFrame();
 		myFrame.setTitle("FileSender");
@@ -43,7 +50,8 @@ public class FileSender extends Thread{
 		}
 		
 		
-		myProgressBar = new JProgressBar(0, (int)myFile.length());
+//		myProgressBar = new JProgressBar(0, (int)myFile.length());
+		myProgressBar = new JProgressBar(0, myByteArray.length);
 		JScrollPane myScrollPane = new JScrollPane(myTextPane);
 		myScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		myScrollPane.setPreferredSize(new Dimension(400, 350));
@@ -59,7 +67,11 @@ public class FileSender extends Thread{
 	
 	public void run() {
 		try {
-			bis.read(myByteArray, 0, myByteArray.length);
+//			bis.read(myByteArray, 0, myByteArray.length);
+//			if (!myEncryptionType.equals("None")){
+//				System.out.println("FileSender: " + myEncryptionKey);
+//				myByteArray = Cryptograph.encryptFile(myByteArray, myEncryptionType, myEncryptionKey);
+//			}
 			os = clientSocket.getOutputStream();
 			int progress = 0;
 			for (byte b : myByteArray) {
@@ -73,7 +85,7 @@ public class FileSender extends Thread{
 				e.printStackTrace();
 			}
 //			os.write(myByteArray, 0, myByteArray.length);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

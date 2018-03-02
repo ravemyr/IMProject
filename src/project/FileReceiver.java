@@ -39,6 +39,8 @@ public class FileReceiver extends Thread{
 	private ReceiverObservable myObservable;
 	private String myName;
 	private JProgressBar myProgressBar;
+	private String encryptionType;
+	private String encryptionKey;
 	
     /**
      * Constructor
@@ -50,16 +52,22 @@ public class FileReceiver extends Thread{
     	current = 0;
 		String[] stringArray = inMsg.split("\\s");
 		int len = stringArray.length;
-		String sender = stringArray[1].substring(7, stringArray[1].length()-1);
+		String sender = stringArray[1].substring(7, stringArray[1].length());
 		fileName = stringArray[3].substring(5, stringArray[3].length());
 		fileSize = Integer.parseInt(stringArray[4].substring(5,
-				stringArray[4].length()-1));
+				stringArray[4].length()));
+		encryptionType = stringArray[5].substring(5, stringArray[5].length());
+		if (!encryptionType.equals("None")){
+			encryptionKey = stringArray[6].substring(4, stringArray[6].length()-1);
+		}
 		StringBuilder question = new StringBuilder();
 		question.append(sender);
 		question.append(" wants to send you file \"");
 		question.append(fileName);
 		question.append("\" of size \"");
 		question.append(fileSize);
+		question.append("\" using cryto: \"");
+		question.append(encryptionType);
 		question.append("\". Supplied message: ");
 		for (int i = 7; i < len - 2; i++) {
 			question.append(stringArray[i]);
@@ -138,7 +146,12 @@ public class FileReceiver extends Thread{
         		}
         	} while(current < fileSize);
         	
-        	bos.write(myByteArray, 0, current);
+        	if (!encryptionType.equals("None")){
+        		System.out.println("FileReceiver: " + encryptionType);
+        		myByteArray = Cryptograph.decryptFile(myByteArray, encryptionType, encryptionKey);
+        	}
+        	
+        	bos.write(myByteArray, 0, myByteArray.length);
         	bos.flush();
         	
 			try {
@@ -147,7 +160,7 @@ public class FileReceiver extends Thread{
 				e.printStackTrace();
 			}
 		} 
-        catch (IOException e) {
+        catch (Exception e) {
 			e.printStackTrace();
 		}
     }

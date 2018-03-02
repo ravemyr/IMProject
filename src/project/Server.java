@@ -140,8 +140,11 @@ public class Server extends Thread{
 						myFileSender.display("Message: " + tempBuilder.toString() + "\n");
 						if (tempStringArray[3].substring(6, tempStringArray[3].length()).equals("yes")){
 							int port = Integer.parseInt(tempStringArray[4].substring(5,
-									tempStringArray[4].length()-1));	
-							myFileSender.sendFileTo(clientSocket.getRemoteSocketAddress().toString(), port);							///////////////////////////////////IP HANDLE
+									tempStringArray[4].length()-1));
+							String tempIP = clientSocket.getInetAddress().toString().substring(1);
+							System.out.println("Server: IP: " + tempIP 
+							+ " Port: " + port);
+							myFileSender.sendFileTo(tempIP, port);
 						}
 	            	}
 	            	else {
@@ -161,12 +164,8 @@ public class Server extends Thread{
     		}
     	}
         
-        public void setFileSender(File inFile) {
-        	try {
-				myFileSender = new FileSender(inFile);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
+        public void setFileSender(byte[] inArray) {
+        	myFileSender = new FileSender(inArray);
         }
         
         public String getClientName() {

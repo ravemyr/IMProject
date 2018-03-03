@@ -19,6 +19,7 @@ public class Viewer {
 	private JFrame myFrame;
 	private JTabbedPane myTabPane;
 	private ArrayList<Tab> myTabList;
+	private ArrayList<DisconnectButton> myButtonList;
 	
 	public static void main(String[] args){
 		Viewer myViewer = new Viewer();
@@ -29,6 +30,7 @@ public class Viewer {
 		myFrame.setTitle("Chat");
 		myTabPane = new JTabbedPane();
 		myTabList = new ArrayList<Tab>();
+		myButtonList = new ArrayList<DisconnectButton>();
 		
 		myFrame.getContentPane().setLayout(new BoxLayout(
 				myFrame.getContentPane(), BoxLayout.Y_AXIS));
@@ -65,7 +67,12 @@ public class Viewer {
 	
 	public void addTab(String IP, int port) {
 		myTabList.add(new Tab(IP, port));
-		myTabPane.addTab("Client", myTabList.get(myTabList.size()-1).getPanel());
+		myButtonList.add(new DisconnectButton(myTabList.get(myTabList.size()-1), myTabList.size()-1));
+		JPanel tempPanel = new JPanel();
+		tempPanel.setLayout(new BoxLayout(tempPanel, BoxLayout.Y_AXIS));
+		tempPanel.add(myButtonList.get(myButtonList.size()-1));
+		tempPanel.add(myTabList.get(myTabList.size()-1).getPanel());
+		myTabPane.addTab("Client", tempPanel);
 	}
 	
 	private class NewTabButton extends JButton implements ActionListener{
@@ -78,6 +85,30 @@ public class Viewer {
 			String ip = JOptionPane.showInputDialog("Enter IP adress to connect to");
 			int port = Integer.parseInt(JOptionPane.showInputDialog("Enter port to connect to"));
 			addTab(ip, port);
+		}
+	}
+	
+	private class DisconnectButton extends JButton implements ActionListener{
+		private Tab myTab;
+		private int number;
+		public DisconnectButton(Tab inTab, int nr) {
+			number = nr;
+			myTab = inTab;
+			this.setText("Disconnect");
+			this.addActionListener(this);
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			myTab.disconnectTab();
+			myTabPane.remove(number);
+			myButtonList.remove(number);
+			for (int i = number; i < myButtonList.size(); i++) {
+				myButtonList.get(i).setNumber(i);
+			}
+		}
+		
+		public void setNumber(int num) {
+			number = num;
 		}
 	}
 }

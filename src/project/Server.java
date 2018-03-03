@@ -124,6 +124,15 @@ public class Server extends Thread{
 	            		name = updateName(inputLine);
 	            		distributeMessage(inputLine);
 	            	}
+	            	else if (verifyStr.equals("disconnect")) {
+	            		distributeMessage(inputLine);
+	            		isOpen = false;
+	    	    		clientSocket.close();
+	    	    		myClientHandlerList.remove(clientNumber);
+	    	    		for (int i = clientNumber; i < myClientHandlerList.size(); i++) {
+	    	    			myClientHandlerList.get(i).setClientNumber(i);
+	    	    		}
+	            	}
 	            	else if (verifyStr.equals("encrypted")) {
 	            		name = updateName(inputLine);
 	            		distributeMessage(inputLine);
@@ -187,10 +196,17 @@ public class Server extends Thread{
 	    		in.close();
 	    		clientSocket.close();
 	    		myClientHandlerList.remove(clientNumber);
+	    		for (int i = clientNumber; i < myClientHandlerList.size(); i++) {
+	    			myClientHandlerList.get(i).setClientNumber(i);
+	    		}
     		}
     		catch(Exception e) {
     			e.printStackTrace();
     		}
+    	}
+    	
+    	public void setClientNumber(int num) {
+    		clientNumber = num;
     	}
         
         public void setFileSender(byte[] inArray) {
@@ -223,6 +239,9 @@ public class Server extends Thread{
 			for (String a : stringArray) {
 				if (a.startsWith("<filerequest")) {
 					return "filerequest";
+				}
+				else if (a.startsWith("<disconnect")) {
+					return "disconnect";
 				}
 				else if (a.startsWith("<text")) {
 					return "text";

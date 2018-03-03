@@ -85,6 +85,22 @@ public class Tab {
 		}	
 	}
 	
+	public void disconnectTab() {
+		StringBuilder outString = new StringBuilder();
+    	outString.append("<message");
+		String name = myChatPanel.getName();
+    	outString.append(" sender=" + name);
+    	outString.append("> ");
+    	outString.append("<disconnect> </disconnect>");
+    	outString.append("</message>");
+    	try {
+			myClient.sendMessage(outString.toString());
+			myClient.stopConnection();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * Returns the UI as a JPanel
 	 * @return
@@ -276,6 +292,11 @@ public class Tab {
 					myDisplayPanel.display("You were kicked from the server",
 							null);
 				}
+				else if (verifyStr.equals("disconnect")) {
+					String[] tempStringArray = tempString.split("\\s");
+					String tempName = tempStringArray[1].substring(7, tempStringArray[1].length()-1);
+					myDisplayPanel.display(tempName + " has disconnected.", null);
+				}
 				else if (verifyStr.equals("filerequest")) {
 					myFileReceiver = new FileReceiver(tempString, myChatPanel.getName());
 					myReceiverObserver = new ReceiverObserver();
@@ -438,6 +459,9 @@ public class Tab {
 			for (String a : stringArray) {
 				if (a.startsWith("<kick")) {
 					return "kick";
+				}
+				else if (a.startsWith("<disconnect")) {
+					return "disconnect";
 				}
 				else if (a.startsWith("<filerequest")) {
 					return "filerequest";

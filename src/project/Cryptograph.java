@@ -2,10 +2,14 @@ package project;
 import javax.crypto.spec.*;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
@@ -63,7 +67,7 @@ public class Cryptograph {
 			SecretKeySpec AESkey = new SecretKeySpec(keyContent,0,keyContent.length, "AES");			
 			Cipher AEScipher = Cipher.getInstance("AES");
 			AEScipher.init(Cipher.ENCRYPT_MODE, AESkey);
-			byte[] cipherData = AEScipher.doFinal(inString.getBytes());
+			byte[] cipherData = AEScipher.doFinal(inString.getBytes("UTF8"));
 			for(byte b: cipherData){
 				encodedString.append(String.format("%02x", b));
 			}
@@ -162,30 +166,11 @@ public class Cryptograph {
 	public static byte[] encryptFile(byte[] bytesIn,String type, String Key) throws Exception{
 		byte[] encoded = null;	
 		if(type.equals("Caesar")){
-			String inString = new String(bytesIn,"UTF-8");
-			StringBuilder runningCrypto = new StringBuilder();
-			int Keyint = Integer.parseInt(Key)%alphabet.length;
-			for(int i = 0; i < inString.length(); i++){
-				char a = inString.charAt(i);
-				int used = 0;
-				for(char b: alphabet){
-					if(b==a){
-						try {
-							runningCrypto.append(alphabet[(indexOf(alphabet,b)
-									+Keyint)%alphabet.length]);
-								used = 1;
-								break;
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
-				if(used==0){
-					runningCrypto.append(a);
-				}
+			int neuKey = Integer.parseInt(Key)%256;
+			for(byte b:bytesIn){
+				b = (byte)((b+neuKey)&256);
 			}
-			encoded = runningCrypto.toString().getBytes("UTF-8");
+			encoded = bytesIn;
 		}
 		else if(type.equals("AES")){
 			byte[] keyContent = Base64.getDecoder().decode(Key);
@@ -202,42 +187,16 @@ public class Cryptograph {
 	public static byte[] decryptFile(byte[] bytesIn, String type, String Key) throws Exception{
 		byte[] decoded = null;
 		if(type.equals("Caesar")){
-			int Keyint = Integer.parseInt(Key)%alphabet.length;
-			String inString = new String(bytesIn, "UTF-8");
-			StringBuilder decodedString = new StringBuilder();
-			for(int i = 0; i < inString.length(); i++){
-				char a = inString.charAt(i);
-				int used = 0;
-				for(char b: alphabet){
-					if(b==a){
-						if(indexOf(alphabet,b)<Keyint){
-							try{
-								decodedString.append(
-										alphabet[(alphabet.length-
-												Keyint+indexOf(alphabet,b))]);
-								used = 1;
-								break;
-							}catch(Exception c){
-								System.out.print(c.getMessage());
-							}
-						}
-						else{
-							try{
-								decodedString.append(alphabet[(indexOf(alphabet,b)
-										-Keyint)]);
-								used = 1;
-								break;
-							}catch(Exception c){
-								System.out.print(c.getMessage());
-							}
-						}
-					}
+			int neuKey = Integer.parseInt(Key)%256;
+			for(byte b:bytesIn){
+				if(neuKey<b){
+					b = (byte)((b-neuKey)&256);
 				}
-				if(used==0){
-					decodedString.append(a);
+				else{
+					b = (byte)(256-neuKey+b);
 				}
 			}
-			decoded = decodedString.toString().getBytes("UTF-8");
+			decoded = bytesIn;
 		}
 		else if(type.equals("AES")){
 			byte[] keyContent = Base64.getDecoder().decode(Key);
@@ -287,23 +246,24 @@ public class Cryptograph {
 	    int len = s.length();
 	    byte[] data = new byte[len / 2];
 	    for (int i = 0; i < len; i += 2) {
-	        data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-	                             + Character.digit(s.charAt(i+1), 16));
+	        data[i / 2] = (byte) ((Character.digit((int)s.charAt(i), 16) << 4)
+	                             + Character.digit((int)s.charAt(i+1), 16));
 	    }
 	    return data;
 	}
 	public static void main(String[] args){
-		File myFile = new File("C:\\Users\\Emanuel\\Documents\\KTH\\MATLAB");
-		BufferedInputStream testing = null;
+		File myFile = new File("C:\\Users\\Emanuel\\Documents\\KTH\\OOP\\Project\\openGUI.png");
+		BufferedReader testing = null;
 		try {
-			testing = new BufferedInputStream(new FileInputStream(myFile));
+			testing = new BufferedReader(new InputStreamReader(new FileInputStream(myFile)));
 		} catch (FileNotFoundException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
 		byte[] fileArr = new byte[(int)myFile.length()];
 		try {
-			testing.read(fileArr,0,fileArr.length);
+//			testing.read(fileArr,0,fileArr.length);
+			testing.read();
 			testing.close();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
@@ -318,6 +278,11 @@ public class Cryptograph {
 			sendByte = Cryptograph.encryptFile(fileArr, "Caesar", "113");
 			finalResult = Cryptograph.decryptFile(sendByte, "Caesar", "113");
 			System.out.print(new String(finalResult,"UTF-8"));
+			try (FileOutputStream fos = new FileOutputStream("C:\\Users\\Emanuel\\Documents\\KTH\\OOP\\Project\\neuGUI.png")) {
+				   fos.write(finalResult);
+				   fos.close();
+				}
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

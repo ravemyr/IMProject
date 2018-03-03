@@ -8,6 +8,7 @@ package project;
 
 import java.awt.*;
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.text.SimpleAttributeSet;
@@ -43,7 +44,7 @@ public class Tab {
 		myDisplayPanel = new DisplayPanel();
 		myClient = new Client();
 		
-		myIP = "130.229.131.100";
+		myIP = "127.0.0.1";
 		myClient.startConnection(myIP, 4000);
 		
 		myPanel = new JPanel();
@@ -113,10 +114,13 @@ public class Tab {
 	    	String encryptionKey;
 	    	
 	    	try{
-	    	byte[] tempFileArray = new byte[(int)tempFile.length()];
-	    		BufferedInputStream tempBis = new BufferedInputStream(new FileInputStream(tempFile));
-	    		tempBis.read(tempFileArray, 0, tempFileArray.length);
-	    		tempBis.close();
+//	    		byte[] tempFileArray = new byte[(int)tempFile.length()];
+//	    		BufferedInputStream tempBis = new BufferedInputStream(new FileInputStream(tempFile));
+//	    		tempBis.read(tempFileArray, 0, tempFileArray.length);
+//	    		tempBis.close();
+	    		
+	    		byte[] tempFileArray = Files.readAllBytes(tempFile.toPath());
+	    		
 	    		byte[] outArray;
 		    	if(myChatPanel.isEncrypted()){
 		    		encryptionType = myChatPanel.getEncryptType();
@@ -125,7 +129,8 @@ public class Tab {
 							.encodeToString(myChatPanel.getKey());
 		    		}
 		    		else{
-		    			encryptionKey = new String(myChatPanel.getKey(),"UTF8");
+//		    			encryptionKey = new String(myChatPanel.getKey(),"UTF8");
+		    			encryptionKey = new String(myChatPanel.getKey());
 		    		}
 		    		
 		    		outArray = Cryptograph.encryptFile(tempFileArray, encryptionType, encryptionKey);

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -73,12 +74,13 @@ public class ServerGUI extends JFrame{
 			if(n==0){
 				System.out.print("This");
 				String keyCode = JOptionPane.showInputDialog("Enter integer key");
-				try {
-					myKey = keyCode.getBytes("UTF8");
-				} catch (UnsupportedEncodingException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+//				try {
+//					myKey = keyCode.getBytes("UTF8");
+					myKey = keyCode.getBytes();
+//				} catch (UnsupportedEncodingException e1) {
+//					// TODO Auto-generated catch block
+//					e1.printStackTrace();
+//				}
 				encrypted = true;
 				encryptType = "Caesar";
 			}
@@ -163,13 +165,17 @@ public class ServerGUI extends JFrame{
 						tempKey = Base64.getEncoder().encodeToString(myKey);
 					}
 					else{
-						tempKey = new String(myKey,"UTF8");
+//						tempKey = new String(myKey,"UTF8");
+						tempKey = new String(myKey);
 					}
 				
-			    	byte[] tempFileArray = new byte[(int)myFile.length()];
-		    		BufferedInputStream tempBis = new BufferedInputStream(new FileInputStream(myFile));
-		    		tempBis.read(tempFileArray, 0, tempFileArray.length);
-		    		tempBis.close();
+//			    	byte[] tempFileArray = new byte[(int)myFile.length()];
+//		    		BufferedInputStream tempBis = new BufferedInputStream(new FileInputStream(myFile));
+//		    		tempBis.read(tempFileArray, 0, tempFileArray.length);
+//		    		tempBis.close();
+					
+					byte[] tempFileArray = Files.readAllBytes(myFile.toPath());
+					
 		    		byte[] outArray;
 			    	if(!encryptType.equals("None")){
 			    		

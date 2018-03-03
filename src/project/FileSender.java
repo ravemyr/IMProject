@@ -79,6 +79,7 @@ public class FileSender extends Thread{
 				progress++;
 				myProgressBar.setValue(progress);
 			}
+			os.flush();
 			try {
 				myDoc.insertString(myDoc.getLength(), "Done\n", null);
 			} catch (BadLocationException e) {

@@ -40,13 +40,13 @@ public class Tab {
 	/**
 	 * Constructor. Connects to server, creates panel and adds observers
 	 */
-	public Tab(){
+	public Tab(String inIP, int inPort){
 		myChatPanel = new ChatPanel();
 		myDisplayPanel = new DisplayPanel();
 		myClient = new Client();
 		
-		myIP = "127.0.0.1";
-		myClient.startConnection(myIP, 4000);
+		myIP = inIP;
+		myClient.startConnection(myIP, inPort);
 		
 		myPanel = new JPanel();
 //		myPanel.setLayout(new GridLayout(2,1,10,10));

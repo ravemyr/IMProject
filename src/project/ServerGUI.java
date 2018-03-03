@@ -25,11 +25,11 @@ public class ServerGUI extends JFrame{
 	private EncryptButton myEncryptButton;
 	private KickButton myKickButton;
 	
-	public static void main(String[] args) {
-		ServerGUI myServerGUI = new ServerGUI();
-	}
+//	public static void main(String[] args) {
+//		ServerGUI myServerGUI = new ServerGUI();
+//	}
 	
-	public ServerGUI() {
+	public ServerGUI(int inPort) {
 		encryptType = "None";
 		encrypted = false;
 		
@@ -43,7 +43,7 @@ public class ServerGUI extends JFrame{
 		JPanel bringThePane = new JPanel();
 		bringThePane.setLayout(new BoxLayout(bringThePane, BoxLayout.X_AXIS));
 		
-		myServer = new Server();
+		myServer = new Server(inPort);
 		myServer.start();
 		
 		myFileButton = new FileButton();

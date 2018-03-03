@@ -21,17 +21,19 @@ import java.io.*;
 public class Server extends Thread{
     private ServerSocket serverSocket;
     private ArrayList<ClientHandler> myClientHandlerList;
+    private int myPort;
     
     /**
      * Constructor, create empty list to keep connected clients
      */
-    public Server(){
+    public Server(int inPort){
+    	myPort = inPort;
     	myClientHandlerList = new ArrayList<ClientHandler>();
     }
     
     public void run() {
     	try {
-			this.startServer(4000);
+			this.startServer(myPort);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

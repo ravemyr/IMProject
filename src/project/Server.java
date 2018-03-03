@@ -8,6 +8,8 @@ package project;
 import java.net.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.Timer;
+
 import java.io.*;
 
 /**
@@ -43,11 +45,14 @@ public class Server extends Thread{
      */
     public void startServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
-        ClientHandler tempClient;
+//        ClientHandler tempClient;
+        ProtoClient tempClient;
 		while (true){
-        	tempClient = new ClientHandler(serverSocket.accept());
+			tempClient = new ProtoClient(serverSocket.accept());
 			tempClient.start();
-            myClientHandlerList.add(tempClient);
+//        	tempClient = new ClientHandler(serverSocket.accept());
+//			tempClient.start();
+//            myClientHandlerList.add(tempClient);
 		}
     }
     
@@ -87,12 +92,14 @@ public class Server extends Thread{
         private FileSender myFileSender;
         private FileReceiver myFileReceiver;
         private ReceiverObserver myReceiverObserver;
+        private boolean isOpen;
         
         /**
          * Constructor, set number for connection
          * @param socket
          */
         public ClientHandler(Socket socket) {
+        	isOpen = true;
         	name = "Anon";
             this.clientSocket = socket;
             this.clientNumber = myClientHandlerList.size();
@@ -108,14 +115,15 @@ public class Server extends Thread{
 	              new InputStreamReader(clientSocket.getInputStream()));
 	             
 	            String inputLine;
-	            while (true) {
+	            while (isOpen) {
 	            	inputLine = in.readLine();
 	            	String verifyStr = verifyType(inputLine);
-	            	String tempString;
 	            	if (verifyStr.equals("text")) {
+	            		name = updateName(inputLine);
 	            		distributeMessage(inputLine);
 	            	}
 	            	else if (verifyStr.equals("encrypted")) {
+	            		name = updateName(inputLine);
 	            		distributeMessage(inputLine);
 	            	}
 	            	else if (verifyStr.equals("keyresponse")) {
@@ -157,10 +165,29 @@ public class Server extends Thread{
         	}
         }
         
+        private String updateName(String msg) {
+        	String[] tempArray = msg.split("\\s");
+        	return tempArray[1].substring(7, tempArray[1].length()-1);
+        }
+        
     	private class ReceiverObserver implements Observer{
     		public void update(Observable a, Object str) {
     			String tempString = (String) str;
     			out.println(tempString);
+    		}
+    	}
+    	
+    	public void closeConnection() {
+    		try {
+    			out.println("<kick> </kick>");
+    			isOpen = false;
+	    		out.close();
+	    		in.close();
+	    		clientSocket.close();
+	    		myClientHandlerList.remove(clientNumber);
+    		}
+    		catch(Exception e) {
+    			e.printStackTrace();
     		}
     	}
         
@@ -214,4 +241,104 @@ public class Server extends Thread{
 			return null;
 		}
     }
+    
+    private class ProtoClient extends Thread{
+    	private Socket myTempClient;
+        private PrintWriter out;
+        private BufferedReader in;
+        
+    	public ProtoClient(Socket inSocket) {
+    		myTempClient = inSocket;
+    	}
+    	
+    	public void run() {
+            try {
+				out = new PrintWriter(myTempClient.getOutputStream(), true);
+	            in = new BufferedReader(
+	                    new InputStreamReader(myTempClient.getInputStream()));
+	            String inputLine;
+	            while (true) {
+	            	inputLine = in.readLine();
+	            	String verifyStr = verifyType(inputLine);
+	            	if (verifyStr.equals("request")){
+	            		String[] stringArray = inputLine.split("\\s");
+	            		StringBuilder messageBuilder = new StringBuilder();
+	            		for (int i = 2; i < stringArray.length-1; i++) {
+	            			messageBuilder.append(stringArray[i]);
+	            			messageBuilder.append(" ");
+	            		}
+	            		int retVal = JOptionPane.showConfirmDialog(null, 
+	            				messageBuilder.toString());
+	            		if (retVal == JOptionPane.YES_OPTION) {
+	            			ClientHandler tempClientHandler = new ClientHandler(
+	            					myTempClient);
+	            			tempClientHandler.start();
+	            			myClientHandlerList.add(tempClientHandler);
+	            			out.println("<response> ...Connected </response>");
+	            			break;
+	            		}
+	            		else {
+	            			out.println("<response> ...Refused </response>");
+	            			out.flush();
+	            			in.close();
+	            			out.close();
+	            			myTempClient.close();
+	            			break;
+	            		}
+	            	}
+	            	else if (verifyStr.equals("message")){
+	            		int retVal = JOptionPane.showConfirmDialog(null, 
+	            				"An older client is trying to connect. Accept connection?");
+	            		if (retVal == JOptionPane.YES_OPTION) {
+	            			ClientHandler tempClientHandler = new ClientHandler(
+	            					myTempClient);
+	            			tempClientHandler.start();
+	            			myClientHandlerList.add(tempClientHandler);
+	            			StringBuilder tempBuilder = new StringBuilder();
+	            			tempBuilder.append("<message sender=Server> ");
+	            			tempBuilder.append("<text color=#000000> ");
+	            			tempBuilder.append("Connection accepted ");
+	            			tempBuilder.append("</text> </message>");
+	            			out.println(tempBuilder.toString());
+	            			break;
+	            		}
+	            		else {
+	            			StringBuilder tempBuilder = new StringBuilder();
+	            			tempBuilder.append("<message sender=Server> ");
+	            			tempBuilder.append("<text color=#000000> ");
+	            			tempBuilder.append("Connection refused ");
+	            			tempBuilder.append("</text> </message>");
+	            			out.println(tempBuilder.toString());
+	            			out.flush();
+	            			in.close();
+	            			out.close();
+	            			myTempClient.close();
+	            			break;
+	            		}
+	            	}
+	            	
+	            }
+	            
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+    	}
+    	
+		public String verifyType(String msg) {
+			String[] stringArray = msg.split("\\s");
+			for (String a : stringArray) {
+				if (a.startsWith("<request")) {
+					return "request";
+				}
+				else if (a.startsWith("<message")) {
+					return "message";
+				}			
+			}
+			return null;
+		}
+    	
+    }
+    
 }

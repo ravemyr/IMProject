@@ -23,6 +23,7 @@ public class ServerGUI extends JFrame{
 	private boolean encrypted;
 	private String encryptType;
 	private EncryptButton myEncryptButton;
+	private KickButton myKickButton;
 	
 	public static void main(String[] args) {
 		ServerGUI myServerGUI = new ServerGUI();
@@ -47,12 +48,48 @@ public class ServerGUI extends JFrame{
 		
 		myFileButton = new FileButton();
 		myEncryptButton = new EncryptButton();
+		myKickButton = new KickButton();
 		bringThePane.add(myFileButton);
 		bringThePane.add(myEncryptButton);
+		bringThePane.add(myKickButton);
 		
 		this.add(bringThePane);
 		this.pack();
 		
+	}
+	
+	private class KickButton extends JButton implements ActionListener{
+		public KickButton() {
+			this.setText("Kick");
+			this.addActionListener(this);
+		}
+		public void actionPerformed(ActionEvent e) {
+			JFrame tempFrame = new JFrame();
+			tempFrame.setTitle("Server: Choose target client");
+			JPanel bringThePane = new JPanel();
+			bringThePane.setLayout(new BoxLayout(bringThePane, BoxLayout.Y_AXIS));
+			bringThePane.setVisible(true);
+			ArrayList<ClientHandler> myClients = myServer.getClients();
+			for (ClientHandler a : myClients) {
+				TargetButton tempButton = new TargetButton(a);
+				bringThePane.add(tempButton);
+			}
+			tempFrame.add(bringThePane);
+			tempFrame.pack();
+			tempFrame.setVisible(true);
+		}
+		
+		private class TargetButton extends JButton implements ActionListener{
+			private ClientHandler targetClient;
+			public TargetButton(ClientHandler a) {
+				targetClient = a;
+				this.setText(targetClient.getClientName());
+				this.addActionListener(this);
+			}
+			public void actionPerformed(ActionEvent e) {
+				targetClient.closeConnection();
+			}
+		}
 	}
 	
 	private class EncryptButton extends JButton implements ActionListener{

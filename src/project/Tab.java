@@ -11,6 +11,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
@@ -63,6 +64,25 @@ public class Tab {
 		myChatPanel.getFileObservable().addObserver(myFileObserver);
 		myClient.getObservable().addObserver(myClientObserver);
 		myChatPanel.getEncryptObservable().addObserver(myEncryptObserver);
+		
+		this.attemptConnection();
+	}
+	
+	private void attemptConnection() {
+		try {
+			myDisplayPanel.display("Waiting...", null);
+			StringBuilder outString = new StringBuilder();
+	    	outString.append("<request> ");
+			String name = myChatPanel.getName();
+			outString.append("User: \"");
+	    	outString.append(name);
+	    	outString.append("\" Is trying to connect. Allow connection?");
+	    	outString.append(" </request>");
+	    	myClient.sendMessage(outString.toString());
+	    	
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
 	}
 	
 	/**
@@ -251,10 +271,25 @@ public class Tab {
 			String tempString = (String) str;
 			try{
 				String verifyStr = verifyType(tempString);
-				if (verifyStr.equals("filerequest")) {
+				if (verifyStr.equals("kick")) {
+					myClient.stopConnection();
+					myDisplayPanel.display("You were kicked from the server",
+							null);
+				}
+				else if (verifyStr.equals("filerequest")) {
 					myFileReceiver = new FileReceiver(tempString, myChatPanel.getName());
 					myReceiverObserver = new ReceiverObserver();
 					myFileReceiver.getObservable().addObserver(myReceiverObserver);
+				}
+				else if (verifyStr.equals("response")) {
+					String[] tempStringArray = tempString.split("\\s");
+					if (tempStringArray[1].equals("...Connected")) {
+						myDisplayPanel.display("...Connected\n", null);
+					}
+					else {
+						myDisplayPanel.display("...Refused\n", null);
+						myClient.stopConnection();
+					}
 				}
 				else if (verifyStr.equals("text")) {
 					newTempString = verifyMessage(tempString);
@@ -401,7 +436,10 @@ public class Tab {
 		public String verifyType(String msg) {
 			String[] stringArray = msg.split("\\s");
 			for (String a : stringArray) {
-				if (a.startsWith("<filerequest")) {
+				if (a.startsWith("<kick")) {
+					return "kick";
+				}
+				else if (a.startsWith("<filerequest")) {
 					return "filerequest";
 				}
 				else if (a.startsWith("<text")) {
@@ -416,9 +454,12 @@ public class Tab {
 				else if (a.startsWith("<keyresponse")){
 					return "keyresponse";
 				}
-				else if(a.startsWith("<encrypted")){
+				else if (a.startsWith("<encrypted")){
 					return "encrypted";
-				}			
+				}
+				else if (a.startsWith("<response")) {
+					return "response";
+				}
 			}
 			return null;
 		}

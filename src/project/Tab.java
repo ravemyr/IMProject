@@ -8,10 +8,10 @@ package project;
 
 import java.awt.*;
 import java.io.*;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
@@ -40,61 +40,79 @@ public class Tab {
 	/**
 	 * Constructor. Connects to server, creates panel and adds observers
 	 */
-	public Tab(String myPort){
+	public Tab(String inIP, int inPort){
 		myChatPanel = new ChatPanel();
 		myDisplayPanel = new DisplayPanel();
 		myClient = new Client();
+		
+		myIP = inIP;
+		myClient.startConnection(myIP, inPort);
+		
+		myPanel = new JPanel();
+//		myPanel.setLayout(new GridLayout(2,1,10,10));
+		myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
+		myPanel.add(myDisplayPanel);
+		myPanel.add(myChatPanel);
+		
+		myChatObserver = new ChatObserver();
+		myClientObserver = new ClientObserver();
+		myFileObserver = new FileObserver();
+		myEncryptObserver = new EncryptObserver();
+		
+		
+		myChatPanel.getChatObservable().addObserver(myChatObserver);
+		myChatPanel.getFileObservable().addObserver(myFileObserver);
+		myClient.getObservable().addObserver(myClientObserver);
+		myChatPanel.getEncryptObservable().addObserver(myEncryptObserver);
 		
 		try {
-			myIP = InetAddress.getLocalHost().getHostAddress();
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		myClient.startConnection(myIP, Integer.parseInt(myPort));
 		
-		myPanel = new JPanel();
-//		myPanel.setLayout(new GridLayout(2,1,10,10));
-		myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
-		myPanel.add(myDisplayPanel);
-		myPanel.add(myChatPanel);
-		
-		myChatObserver = new ChatObserver();
-		myClientObserver = new ClientObserver();
-		myFileObserver = new FileObserver();
-		myEncryptObserver = new EncryptObserver();
-		
-		
-		myChatPanel.getChatObservable().addObserver(myChatObserver);
-		myChatPanel.getFileObservable().addObserver(myFileObserver);
-		myClient.getObservable().addObserver(myClientObserver);
-		myChatPanel.getEncryptObservable().addObserver(myEncryptObserver);
+		this.attemptConnection();
 	}
 	
-	public Tab(String myIP,String myPort){
-		myChatPanel = new ChatPanel();
-		myDisplayPanel = new DisplayPanel();
-		myClient = new Client();
-		
-		myClient.startConnection(myIP, Integer.parseInt(myPort));
-		
-		myPanel = new JPanel();
-//		myPanel.setLayout(new GridLayout(2,1,10,10));
-		myPanel.setLayout(new BoxLayout(myPanel, BoxLayout.Y_AXIS));
-		myPanel.add(myDisplayPanel);
-		myPanel.add(myChatPanel);
-		
-		myChatObserver = new ChatObserver();
-		myClientObserver = new ClientObserver();
-		myFileObserver = new FileObserver();
-		myEncryptObserver = new EncryptObserver();
-		
-		
-		myChatPanel.getChatObservable().addObserver(myChatObserver);
-		myChatPanel.getFileObservable().addObserver(myFileObserver);
-		myClient.getObservable().addObserver(myClientObserver);
-		myChatPanel.getEncryptObservable().addObserver(myEncryptObserver);
+	/**
+	 * Method for attempting to connect to server
+	 */
+	private void attemptConnection() {
+		try {
+			myDisplayPanel.display("Waiting...", null);
+			StringBuilder outString = new StringBuilder();
+	    	outString.append("<request> ");
+			String name = myChatPanel.getName();
+			outString.append("User: \"");
+	    	outString.append(name);
+	    	outString.append("\" Is trying to connect. Allow connection?");
+	    	outString.append(" </request>");
+	    	myClient.sendMessage(outString.toString());
+	    	
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
 	}
+	
+	/**
+	 * Disconnect from server
+	 */
+	public void disconnectTab() {
+		StringBuilder outString = new StringBuilder();
+    	outString.append("<message");
+		String name = myChatPanel.getName();
+    	outString.append(" sender=" + name);
+    	outString.append("> ");
+    	outString.append("<disconnect> </disconnect>");
+    	outString.append("</message>");
+    	try {
+			myClient.sendMessage(outString.toString());
+			myClient.stopConnection();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * Returns the UI as a JPanel
 	 * @return
@@ -103,7 +121,15 @@ public class Tab {
 		return myPanel;
 	}
 	
+	/**
+	 * Observer for the FileReceiver object
+	 * @author Gustav
+	 *
+	 */
 	private class ReceiverObserver implements Observer{
+		/**
+		 * Relay message from FileReceiver
+		 */
 		public void update(Observable a, Object str) {
 			String tempString = (String) str;
 			try {
@@ -113,8 +139,15 @@ public class Tab {
 			}
 		}
 	}
-	
+	/**
+	 * Class for asking to send file
+	 * @author Gustav
+	 *
+	 */
 	private class FileObserver implements Observer{
+		/**
+		 * Relay message
+		 */
 		public void update(Observable a, Object str) {
 			String tempString = (String) str;
 			try {
@@ -130,7 +163,8 @@ public class Tab {
 		 * @return
 		 * @throws UnsupportedEncodingException 
 		 */
-		private String encodeString(String inString) throws UnsupportedEncodingException{
+		private String encodeString(String inString) 
+				throws UnsupportedEncodingException{
 			StringBuilder outString = new StringBuilder();
 	    	outString.append("<message");
 			String name = myChatPanel.getName();
@@ -144,10 +178,13 @@ public class Tab {
 	    	String encryptionKey;
 	    	
 	    	try{
-	    	byte[] tempFileArray = new byte[(int)tempFile.length()];
-	    		BufferedInputStream tempBis = new BufferedInputStream(new FileInputStream(tempFile));
-	    		tempBis.read(tempFileArray, 0, tempFileArray.length);
-	    		tempBis.close();
+//	    		byte[] tempFileArray = new byte[(int)tempFile.length()];
+//	    		BufferedInputStream tempBis = new BufferedInputStream(new FileInputStream(tempFile));
+//	    		tempBis.read(tempFileArray, 0, tempFileArray.length);
+//	    		tempBis.close();
+	    		
+	    		byte[] tempFileArray = Files.readAllBytes(tempFile.toPath());
+	    		
 	    		byte[] outArray;
 		    	if(myChatPanel.isEncrypted()){
 		    		encryptionType = myChatPanel.getEncryptType();
@@ -156,12 +193,13 @@ public class Tab {
 							.encodeToString(myChatPanel.getKey());
 		    		}
 		    		else{
-		    			encryptionKey = new String(myChatPanel.getKey(),"UTF8");
+//		    			encryptionKey = new String(myChatPanel.getKey(),"UTF8");
+		    			encryptionKey = new String(myChatPanel.getKey());
 		    		}
 		    		
-		    		outArray = Cryptograph.encryptFile(tempFileArray, encryptionType, encryptionKey);
+		    		outArray = Cryptograph.encryptFile(tempFileArray,
+		    				encryptionType, encryptionKey);
 		    		outString.append(" size=" + outArray.length);
-		    		
 		    		
 		 	    	outString.append(" type=" + encryptionType);
 		   		 	outString.append(" key=" + encryptionKey);
@@ -277,10 +315,34 @@ public class Tab {
 			String tempString = (String) str;
 			try{
 				String verifyStr = verifyType(tempString);
-				if (verifyStr.equals("filerequest")) {
-					myFileReceiver = new FileReceiver(tempString, myChatPanel.getName());
+				if (verifyStr.equals("kick")) {
+					myClient.stopConnection();
+					myDisplayPanel.display("You were kicked from the server",
+							null);
+				}
+				else if (verifyStr.equals("disconnect")) {
+					String[] tempStringArray = tempString.split("\\s");
+					String tempName = tempStringArray[1].substring(7,
+							tempStringArray[1].length()-1);
+					myDisplayPanel.display(tempName + " has disconnected.",
+							null);
+				}
+				else if (verifyStr.equals("filerequest")) {
+					myFileReceiver = new FileReceiver(tempString, myChatPanel.
+							getName());
 					myReceiverObserver = new ReceiverObserver();
-					myFileReceiver.getObservable().addObserver(myReceiverObserver);
+					myFileReceiver.getObservable().
+							addObserver(myReceiverObserver);
+				}
+				else if (verifyStr.equals("response")) {
+					String[] tempStringArray = tempString.split("\\s");
+					if (tempStringArray[1].equals("...Connected")) {
+						myDisplayPanel.display("...Connected\n", null);
+					}
+					else {
+						myDisplayPanel.display("...Refused\n", null);
+						myClient.stopConnection();
+					}
 				}
 				else if (verifyStr.equals("text")) {
 					newTempString = verifyMessage(tempString);
@@ -293,9 +355,12 @@ public class Tab {
 						tempBuilder.append(tempStringArray[i]);
 						tempBuilder.append(" ");
 					}
-					myFileSender.display("Reply: " + tempStringArray[3].substring(6, tempStringArray[3].length()) + "\n");
-					myFileSender.display("Message: " + tempBuilder.toString() + "\n");
-					if (tempStringArray[3].substring(6, tempStringArray[3].length()).equals("yes")){
+					myFileSender.display("Reply: " + tempStringArray[3].
+							substring(6, tempStringArray[3].length()) + "\n");
+					myFileSender.display("Message: " + tempBuilder.toString() 
+							+ "\n");
+					if (tempStringArray[3].substring(6, tempStringArray[3].
+							length()).equals("yes")){
 						int port = Integer.parseInt(tempStringArray[4].substring(5,
 								tempStringArray[4].length()-1));	
 						myFileSender.sendFileTo(myIP, port);						
@@ -303,10 +368,12 @@ public class Tab {
 				}
 				else if(verifyStr.equals("keyrequest")){
 					String[] controlArray=tempString.split("\\s");
-					if(controlArray[3].substring(6,controlArray[3].length()-1).equals("AES")||
-							controlArray[3].substring(6,controlArray[3].length()-1).equals("Caesar")){
+					if(controlArray[3].substring(6,controlArray[3].length()-1).
+							equals("AES")||controlArray[3].substring(6,
+							controlArray[3].length()-1).equals("Caesar")){
 						try {
-							myClient.sendMessage("<message> <keyresponse answer=true> "
+							myClient.sendMessage("<message> <keyresponse "
+									+ "answer=true> "
 									+ "</keyresponse> </message>");
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
@@ -315,18 +382,19 @@ public class Tab {
 					}
 					else{
 						try {
-							myClient.sendMessage("<message> <keyresponse answer=false> "
-										+ "</keyresponse> </message>");
+							myClient.sendMessage("<message> <keyresponse "
+									+ "answer=false> </keyresponse> </message>");
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
 				}
 				else if(verifyStr.equals("keyresponse")){
 					String[] controlArray = tempString.split("\\s");
-					if(controlArray[3].substring(8,controlArray[3].length()-1).equals("false")){
-						JOptionPane.showMessageDialog(new JFrame(), "Other user does not support"
+					if(controlArray[3].substring(8,controlArray[3].length()-1).
+							equals("false")){
+						JOptionPane.showMessageDialog(new JFrame(), "Other user"
+								+ " does not support"
 								+ " your encryption, please change it.");
 					}
 				}
@@ -370,29 +438,31 @@ public class Tab {
 			int textActive = 0;
 	    	for(int i=1; i<len-1;i++){
 	    		if(stringArray[i].startsWith("sender=")&&textActive==0){
-	    				sender = stringArray[i].substring(7, stringArray[i].length()-1);
+	    				sender = stringArray[i].substring(7, stringArray[i].
+	    						length()-1);
 	    			markerArray.add(i);
 	    		}
 	    		else if(stringArray[i].startsWith("<text")&&textActive==0){
 	    			System.out.println("Do I get here?");
 	    			markerArray.add(i);
 	//    			if(stringArray[i+1].startsWith("color")){
-	    			colorString = stringArray[i+1].substring(6,stringArray[i+1].length()-1);
+	    			colorString = stringArray[i+1].substring(6,stringArray[i+1].
+	    					length()-1);
 	    			markerArray.add(i+1);
 	//    			}
 	    			if(textActive==0){
 	    				textActive = 1;
 	    			}
 	    		}
-	    		else if((stringArray[i].contains("<")||stringArray[i].contains(">"))
-	    				&&textActive==0){
+	    		else if((stringArray[i].contains("<")||stringArray[i].
+	    				contains(">"))&&textActive==0){
 	    			markerArray.add(i);
 	    		}
 	    		else if(stringArray[i].startsWith("type=")&&textActive==0){
 	    			markerArray.add(i);
 	    		}
-	    		else if(((stringArray[i].contains("</")&&stringArray[i].contains(">"))
-	    				&&textActive==0)){
+	    		else if(((stringArray[i].contains("</")&&stringArray[i].
+	    				contains(">"))&&textActive==0)){
 	        		markerArray.add(i);
 	        	}
 	    		else if(stringArray[i].startsWith("</text>")){
@@ -424,10 +494,21 @@ public class Tab {
 			return ender;
 		}
 		
+		/**
+		 * Method for verifing type of incoming message
+		 * @param msg
+		 * @return
+		 */
 		public String verifyType(String msg) {
 			String[] stringArray = msg.split("\\s");
 			for (String a : stringArray) {
-				if (a.startsWith("<filerequest")) {
+				if (a.startsWith("<kick")) {
+					return "kick";
+				}
+				else if (a.startsWith("<disconnect")) {
+					return "disconnect";
+				}
+				else if (a.startsWith("<filerequest")) {
 					return "filerequest";
 				}
 				else if (a.startsWith("<text")) {
@@ -442,17 +523,27 @@ public class Tab {
 				else if (a.startsWith("<keyresponse")){
 					return "keyresponse";
 				}
-				else if(a.startsWith("<encrypted")){
+				else if (a.startsWith("<encrypted")){
 					return "encrypted";
-				}			
+				}
+				else if (a.startsWith("<response")) {
+					return "response";
+				}
 			}
 			return null;
 		}
 		
 	}
 	
+	/**
+	 * Class for observing encryption from chatpanel
+	 * @author Gustav
+	 *
+	 */
 	private class EncryptObserver implements Observer{
-
+		/**
+		 * Sends keyrequest when applying encryption
+		 */
 		@Override
 		public void update(Observable b, Object type) {
 			String encrypt = (String) type;

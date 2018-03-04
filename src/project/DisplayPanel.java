@@ -41,10 +41,13 @@ public class DisplayPanel extends JPanel {
 	 */
 	public void display(String str, SimpleAttributeSet keyWord)
 			throws BadLocationException{
-//		SimpleAttributeSet keyWord = new SimpleAttributeSet();
-//		StyleConstants.setForeground(keyWord, Color.RED);
-//		StyleConstants.setBackground(keyWord, Color.YELLOW);
-//		StyleConstants.setBold(keyWord, true);
+//		if (keyWord == null){
+//			keyWord = new SimpleAttributeSet();
+//			StyleConstants.setBackground(keyWord, Color.decode("#ff642b"));
+//		}
+//		else{
+//			StyleConstants.setBackground(keyWord, Color.decode("#ff642b"));
+//		}
 		
 		myDoc.insertString(myDoc.getLength(), str, keyWord);
 	}

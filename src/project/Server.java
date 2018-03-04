@@ -8,6 +8,8 @@ package project;
 import java.net.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.Timer;
+
 import java.io.*;
 
 /**
@@ -19,19 +21,22 @@ import java.io.*;
 public class Server extends Thread{
     private ServerSocket serverSocket;
     private ArrayList<ClientHandler> myClientHandlerList;
-    private int port;
+    private int myPort;
     
     /**
      * Constructor, create empty list to keep connected clients
      */
-    public Server(String myPort){
+    public Server(int inPort){
+    	myPort = inPort;
     	myClientHandlerList = new ArrayList<ClientHandler>();
-    	port = Integer.parseInt(myPort);
     }
     
+    /**
+     * Starts server in new thread
+     */
     public void run() {
     	try {
-			this.startServer(this.port);
+			this.startServer(myPort);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -39,17 +44,16 @@ public class Server extends Thread{
     
     /**
      * Starting sequence for the server. Creates server socket and
-     * waits for client to connect. Add ClientHandler to list.
+     * waits for client to connect.
      * @param port
      * @throws IOException
      */
     public void startServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
-        ClientHandler tempClient;
+        ProtoClient tempClient;
 		while (true){
-        	tempClient = new ClientHandler(serverSocket.accept());
+			tempClient = new ProtoClient(serverSocket.accept());
 			tempClient.start();
-            myClientHandlerList.add(tempClient);
 		}
     }
     
@@ -71,6 +75,10 @@ public class Server extends Thread{
 //        server.start(4000);
 //    }
     
+    /**
+     * Returns the arrayList of clientHandler objects
+     * @return
+     */
     public ArrayList<ClientHandler> getClients(){
     	return myClientHandlerList;
     }
@@ -89,12 +97,14 @@ public class Server extends Thread{
         private FileSender myFileSender;
         private FileReceiver myFileReceiver;
         private ReceiverObserver myReceiverObserver;
+        private boolean isOpen;
         
         /**
          * Constructor, set number for connection
          * @param socket
          */
         public ClientHandler(Socket socket) {
+        	isOpen = true;
         	name = "Anon";
             this.clientSocket = socket;
             this.clientNumber = myClientHandlerList.size();
@@ -110,14 +120,24 @@ public class Server extends Thread{
 	              new InputStreamReader(clientSocket.getInputStream()));
 	             
 	            String inputLine;
-	            while (true) {
+	            while (isOpen) {
 	            	inputLine = in.readLine();
 	            	String verifyStr = verifyType(inputLine);
-	            	String tempString;
 	            	if (verifyStr.equals("text")) {
+	            		name = updateName(inputLine);
 	            		distributeMessage(inputLine);
 	            	}
+	            	else if (verifyStr.equals("disconnect")) {
+	            		distributeMessage(inputLine);
+	            		isOpen = false;
+	    	    		clientSocket.close();
+	    	    		myClientHandlerList.remove(clientNumber);
+	    	    		for (int i = clientNumber; i < myClientHandlerList.size(); i++) {
+	    	    			myClientHandlerList.get(i).setClientNumber(i);
+	    	    		}
+	            	}
 	            	else if (verifyStr.equals("encrypted")) {
+	            		name = updateName(inputLine);
 	            		distributeMessage(inputLine);
 	            	}
 	            	else if (verifyStr.equals("keyresponse")) {
@@ -159,17 +179,68 @@ public class Server extends Thread{
         	}
         }
         
+        /**
+         * Update name of client
+         * @param msg
+         * @return
+         */
+        private String updateName(String msg) {
+        	String[] tempArray = msg.split("\\s");
+        	return tempArray[1].substring(7, tempArray[1].length()-1);
+        }
+        
+        /**
+         * Observer for observing FileReceiver
+         * @author Gustav
+         *
+         */
     	private class ReceiverObserver implements Observer{
     		public void update(Observable a, Object str) {
     			String tempString = (String) str;
     			out.println(tempString);
     		}
     	}
+    	
+    	/**
+    	 * Kicks client
+    	 */
+    	public void closeConnection() {
+    		try {
+    			out.println("<kick> </kick>");
+    			isOpen = false;
+	    		out.close();
+	    		in.close();
+	    		clientSocket.close();
+	    		myClientHandlerList.remove(clientNumber);
+	    		for (int i = clientNumber; i < myClientHandlerList.size(); i++) {
+	    			myClientHandlerList.get(i).setClientNumber(i);
+	    		}
+    		}
+    		catch(Exception e) {
+    			e.printStackTrace();
+    		}
+    	}
+    	
+    	/**
+    	 * Changes client number
+    	 * @param num
+    	 */
+    	public void setClientNumber(int num) {
+    		clientNumber = num;
+    	}
         
+    	/**
+    	 * Make new fileSender
+    	 * @param inArray
+    	 */
         public void setFileSender(byte[] inArray) {
         	myFileSender = new FileSender(inArray);
         }
         
+        /**
+         * Return client name
+         * @return
+         */
         public String getClientName() {
         	return name;
         }
@@ -187,15 +258,27 @@ public class Server extends Thread{
         	}
         }
         
+        /**
+         * Send message to client
+         * @param msg
+         */
         public void sendMessage(String msg) {
         	out.println(msg);
         }
         
+        /**
+         * Verify the type of incoming message
+         * @param msg
+         * @return
+         */
 		public String verifyType(String msg) {
 			String[] stringArray = msg.split("\\s");
 			for (String a : stringArray) {
 				if (a.startsWith("<filerequest")) {
 					return "filerequest";
+				}
+				else if (a.startsWith("<disconnect")) {
+					return "disconnect";
 				}
 				else if (a.startsWith("<text")) {
 					return "text";
@@ -216,4 +299,121 @@ public class Server extends Thread{
 			return null;
 		}
     }
+    
+    /**
+     * Class for handling clients before they are admitted to the server
+     * @author Gustav
+     *
+     */
+    private class ProtoClient extends Thread{
+    	private Socket myTempClient;
+        private PrintWriter out;
+        private BufferedReader in;
+        
+        /**
+         * Constructor
+         * @param inSocket
+         */
+    	public ProtoClient(Socket inSocket) {
+    		myTempClient = inSocket;
+    	}
+    	
+    	/**
+    	 * Starts new thread for this object and waits for reply
+    	 */
+    	public void run() {
+            try {
+				out = new PrintWriter(myTempClient.getOutputStream(), true);
+	            in = new BufferedReader(
+	                    new InputStreamReader(myTempClient.getInputStream()));
+	            String inputLine;
+	            while (true) {
+	            	inputLine = in.readLine();
+	            	String verifyStr = verifyType(inputLine);
+	            	if (verifyStr.equals("request")){
+	            		String[] stringArray = inputLine.split("\\s");
+	            		StringBuilder messageBuilder = new StringBuilder();
+	            		for (int i = 2; i < stringArray.length-1; i++) {
+	            			messageBuilder.append(stringArray[i]);
+	            			messageBuilder.append(" ");
+	            		}
+	            		int retVal = JOptionPane.showConfirmDialog(null, 
+	            				messageBuilder.toString());
+	            		if (retVal == JOptionPane.YES_OPTION) {
+	            			ClientHandler tempClientHandler = new ClientHandler(
+	            					myTempClient);
+	            			tempClientHandler.start();
+	            			myClientHandlerList.add(tempClientHandler);
+	            			out.println("<response> ...Connected </response>");
+	            			break;
+	            		}
+	            		else {
+	            			out.println("<response> ...Refused </response>");
+	            			out.flush();
+	            			in.close();
+	            			out.close();
+	            			myTempClient.close();
+	            			break;
+	            		}
+	            	}
+	            	else if (verifyStr.equals("message")){
+	            		int retVal = JOptionPane.showConfirmDialog(null, 
+	            				"An older client is trying to connect. Accept connection?");
+	            		if (retVal == JOptionPane.YES_OPTION) {
+	            			ClientHandler tempClientHandler = new ClientHandler(
+	            					myTempClient);
+	            			tempClientHandler.start();
+	            			myClientHandlerList.add(tempClientHandler);
+	            			StringBuilder tempBuilder = new StringBuilder();
+	            			tempBuilder.append("<message sender=Server> ");
+	            			tempBuilder.append("<text color=#000000> ");
+	            			tempBuilder.append("Connection accepted ");
+	            			tempBuilder.append("</text> </message>");
+	            			out.println(tempBuilder.toString());
+	            			break;
+	            		}
+	            		else {
+	            			StringBuilder tempBuilder = new StringBuilder();
+	            			tempBuilder.append("<message sender=Server> ");
+	            			tempBuilder.append("<text color=#000000> ");
+	            			tempBuilder.append("Connection refused ");
+	            			tempBuilder.append("</text> </message>");
+	            			out.println(tempBuilder.toString());
+	            			out.flush();
+	            			in.close();
+	            			out.close();
+	            			myTempClient.close();
+	            			break;
+	            		}
+	            	}
+	            	
+	            }
+	            
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+    	}
+    	
+    	/**
+    	 * Verifies the type of incoming message
+    	 * @param msg
+    	 * @return
+    	 */
+		public String verifyType(String msg) {
+			String[] stringArray = msg.split("\\s");
+			for (String a : stringArray) {
+				if (a.startsWith("<request")) {
+					return "request";
+				}
+				else if (a.startsWith("<message")) {
+					return "message";
+				}			
+			}
+			return null;
+		}
+    	
+    }
+    
 }

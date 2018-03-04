@@ -26,6 +26,7 @@ public class Tester {
 //			e.printStackTrace();
 //		}
 		
+		// 130.229.131.100
 		try{
 		    System.out.println("Your Host addr: " + InetAddress.getLocalHost().getHostAddress());  // often returns "127.0.0.1"
 		    Enumeration<NetworkInterface> n = NetworkInterface.getNetworkInterfaces();

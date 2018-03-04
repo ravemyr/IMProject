@@ -33,6 +33,7 @@ public class Cryptograph {
 		StringBuilder encodedString = new StringBuilder();
 		String thisString;
 		encodedString.append("<encrypted type=" + type + " key=");
+		System.out.println(inString);
 		if(type=="Caesar"){
 			encodedString.append(Integer.toHexString(Integer.parseInt(Key)) + "> ");
 			for(int i = 0; i < inString.length(); i++){
@@ -96,11 +97,11 @@ public class Cryptograph {
 			decodedString.append(splitString[j]);
 			decodedString.append(" ");
 		}
+		System.out.println(inString);
 		if(type.equals("Caesar")){
 			String encodedString = unHex(splitString[5]);
 			inString = encodedString;
 			int Keyint = (int) (Long.parseLong(Key,16)%alphabet.length);
-			System.out.println("Here is "+ Keyint);
 			for(int i = 0; i < inString.length(); i++){
 				char a = inString.charAt(i);
 				int used = 0;
@@ -156,7 +157,7 @@ public class Cryptograph {
 	}
 	/**
 	 * Encrypts a byte[] coming from File and returns a byte[]
-	 * after encrypting the bytes.
+	 * after encrypting the bytes. 
 	 * @param bytesIn
 	 * @param type
 	 * @param Key
@@ -165,10 +166,11 @@ public class Cryptograph {
 	 */
 	public static byte[] encryptFile(byte[] bytesIn,String type, String Key) throws Exception{
 		byte[] encoded = null;	
+		System.out.println("File is being encrypted");
 		if(type.equals("Caesar")){
 			int neuKey = Integer.parseInt(Key)%256;
 			for(byte b:bytesIn){
-				b = (byte)((b+neuKey)&256);
+				b = (byte)((b+neuKey)%256);
 			}
 			encoded = bytesIn;
 		}
@@ -186,14 +188,15 @@ public class Cryptograph {
 	}
 	public static byte[] decryptFile(byte[] bytesIn, String type, String Key) throws Exception{
 		byte[] decoded = null;
+		System.out.println("File is being decrypted");
 		if(type.equals("Caesar")){
 			int neuKey = Integer.parseInt(Key)%256;
 			for(byte b:bytesIn){
 				if(neuKey<b){
-					b = (byte)((b-neuKey)&256);
+					b = (byte)((b-neuKey)%256);
 				}
 				else{
-					b = (byte)(256-neuKey+b);
+					b = (byte)((256-neuKey+b)%256);
 				}
 			}
 			decoded = bytesIn;
@@ -207,6 +210,7 @@ public class Cryptograph {
 		}
 		return decoded;
 	}
+	
 	/**
 	 * Returns index of given character in an array. Assumes existence of character in array.
 	 * @param array
@@ -222,6 +226,7 @@ public class Cryptograph {
 		}
 		throw new Exception("Non-valid arguments for encryption");
 	}
+	
 	/**
 	 * Converts a string of Hexadecimal into string of characters.
 	 * @param arg
@@ -237,6 +242,7 @@ public class Cryptograph {
 	    }       
 	    return str;
 	}
+	
 	/**
 	 * Converts a string of hexadecimal into a byte-array.
 	 * @param s
@@ -250,42 +256,5 @@ public class Cryptograph {
 	                             + Character.digit((int)s.charAt(i+1), 16));
 	    }
 	    return data;
-	}
-	public static void main(String[] args){
-		File myFile = new File("C:\\Users\\Emanuel\\Documents\\KTH\\OOP\\Project\\openGUI.png");
-		BufferedReader testing = null;
-		try {
-			testing = new BufferedReader(new InputStreamReader(new FileInputStream(myFile)));
-		} catch (FileNotFoundException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-		byte[] fileArr = new byte[(int)myFile.length()];
-		try {
-//			testing.read(fileArr,0,fileArr.length);
-			testing.read();
-			testing.close();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		byte[] sendByte = null;
-		byte[] testByte = null;
-		byte[] finalResult = null;
-		try {
-//			testByte = test.getBytes("UTF-8");
-			sendByte = Cryptograph.encryptFile(fileArr, "Caesar", "113");
-			finalResult = Cryptograph.decryptFile(sendByte, "Caesar", "113");
-			System.out.print(new String(finalResult,"UTF-8"));
-			try (FileOutputStream fos = new FileOutputStream("C:\\Users\\Emanuel\\Documents\\KTH\\OOP\\Project\\neuGUI.png")) {
-				   fos.write(finalResult);
-				   fos.close();
-				}
-			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }

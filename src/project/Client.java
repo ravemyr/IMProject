@@ -35,7 +35,7 @@ public class Client extends Thread{
 	        in = new BufferedReader(new InputStreamReader(
 	        		clientSocket.getInputStream()));
 	        String inputLine;
-	        while (true) {
+	        while (!clientSocket.isClosed()) {
 	        	inputLine = in.readLine();
 	        	myObservable.sendUpdate(inputLine);
 	        }

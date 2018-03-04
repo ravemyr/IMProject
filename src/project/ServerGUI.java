@@ -109,7 +109,6 @@ public class ServerGUI extends JFrame{
 				    options,
 				    options[2]);
 			if(n==0){
-				System.out.print("This");
 				String keyCode = JOptionPane.showInputDialog("Enter integer key");
 //				try {
 //					myKey = keyCode.getBytes("UTF8");

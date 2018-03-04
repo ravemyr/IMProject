@@ -16,9 +16,9 @@ import java.util.Base64;
 import javax.crypto.*;
 public class Cryptograph {
 	final static char[] alphabet ={'a','b','c','d','e','f','g','h','i','j','k','l','m',
-			'n','o','p','q','r','s','t','u','v','w','x','y','z','Ã¥','Ã¤','Ã¶','A','B',
+			'n','o','p','q','r','s','t','u','v','w','x','y','z','å','ä','ö','A','B',
 			'C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W',
-			'X','Y','Z','Ã…','Ã„','Ã–','0','1','2','3',
+			'X','Y','Z','Å','Ä','Ö','0','1','2','3',
 			'4','5','6','7','8','9','!','?',')','(','=','>','<','/','&','%','#','@','$','[',']'};
 	/**
 	 * Encodes given string with given crypto and key. It also ensures that the message is well formed.
@@ -168,7 +168,7 @@ public class Cryptograph {
 		if(type.equals("Caesar")){
 			int neuKey = Integer.parseInt(Key)%256;
 			for(byte b:bytesIn){
-				b = (byte)((b+neuKey)&256);
+				b = (byte)((b+neuKey)%256);
 			}
 			encoded = bytesIn;
 		}
@@ -190,10 +190,10 @@ public class Cryptograph {
 			int neuKey = Integer.parseInt(Key)%256;
 			for(byte b:bytesIn){
 				if(neuKey<b){
-					b = (byte)((b-neuKey)&256);
+					b = (byte)((b-neuKey)%256);
 				}
 				else{
-					b = (byte)(256-neuKey+b);
+					b = (byte)((256-neuKey+b)%256);
 				}
 			}
 			decoded = bytesIn;

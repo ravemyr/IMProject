@@ -65,6 +65,12 @@ public class Tab {
 		myClient.getObservable().addObserver(myClientObserver);
 		myChatPanel.getEncryptObservable().addObserver(myEncryptObserver);
 		
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
 		this.attemptConnection();
 	}
 	
@@ -171,7 +177,6 @@ public class Tab {
 		    		
 		    		outArray = Cryptograph.encryptFile(tempFileArray, encryptionType, encryptionKey);
 		    		outString.append(" size=" + outArray.length);
-		    		
 		    		
 		 	    	outString.append(" type=" + encryptionType);
 		   		 	outString.append(" key=" + encryptionKey);

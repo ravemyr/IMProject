@@ -153,6 +153,7 @@ public class FileReceiver extends Thread{
         	
         	bos.write(myByteArray, 0, myByteArray.length);
         	bos.flush();
+        	bos.close();
         	
 			try {
 				myDoc.insertString(myDoc.getLength(), "Done\n", null);

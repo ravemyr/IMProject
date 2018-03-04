@@ -1,4 +1,8 @@
 package project;
+/**
+ * ServerGUI
+ * Created 2018-02-22
+ */
 import java.awt.event.*;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -15,7 +19,11 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.swing.*;
 
 import project.Server.ClientHandler;
-
+/**
+ * Class for showing a GUI to operate a server
+ * @author Gustav
+ *
+ */
 public class ServerGUI extends JFrame{
 	private Server myServer;
 	private FileButton myFileButton;
@@ -29,6 +37,10 @@ public class ServerGUI extends JFrame{
 //		ServerGUI myServerGUI = new ServerGUI();
 //	}
 	
+	/**
+	 * Constructor
+	 * @param inPort
+	 */
 	public ServerGUI(int inPort) {
 		encryptType = "None";
 		encrypted = false;
@@ -58,11 +70,22 @@ public class ServerGUI extends JFrame{
 		
 	}
 	
+	/**
+	 * Class to handle kicking clients from server
+	 * @author Gustav
+	 *
+	 */
 	private class KickButton extends JButton implements ActionListener{
+		/**
+		 * Constructor
+		 */
 		public KickButton() {
 			this.setText("Kick");
 			this.addActionListener(this);
 		}
+		/**
+		 * Open selection of clients possible to kick
+		 */
 		public void actionPerformed(ActionEvent e) {
 			JFrame tempFrame = new JFrame();
 			tempFrame.setTitle("Server: Choose target client");
@@ -79,24 +102,47 @@ public class ServerGUI extends JFrame{
 			tempFrame.setVisible(true);
 		}
 		
+		/**
+		 * Class for kicking specific client
+		 * @author Gustav
+		 *
+		 */
 		private class TargetButton extends JButton implements ActionListener{
 			private ClientHandler targetClient;
+			/**
+			 * Constructor
+			 * @param a
+			 */
 			public TargetButton(ClientHandler a) {
 				targetClient = a;
 				this.setText(targetClient.getClientName());
 				this.addActionListener(this);
 			}
+			/**
+			 * Kicks specific client
+			 */
 			public void actionPerformed(ActionEvent e) {
 				targetClient.closeConnection();
 			}
 		}
 	}
 	
+	/**
+	 * Class for choosing encryption
+	 * @author Gustav
+	 *
+	 */
 	private class EncryptButton extends JButton implements ActionListener{
+		/**
+		 * Constructor
+		 */
 		public EncryptButton() {
 			this.setText("Encryption");
 			this.addActionListener(this);
 		}
+		/**
+		 * Selects type of encryption
+		 */
 		public void actionPerformed(ActionEvent e){
 			int n;
 			Object[] options = {"Caesar","AES","None","Cancel"};
@@ -109,7 +155,8 @@ public class ServerGUI extends JFrame{
 				    options,
 				    options[2]);
 			if(n==0){
-				String keyCode = JOptionPane.showInputDialog("Enter integer key");
+				String keyCode = JOptionPane.showInputDialog("Enter integer "
+						+ "key");
 //				try {
 //					myKey = keyCode.getBytes("UTF8");
 					myKey = keyCode.getBytes();
@@ -141,12 +188,22 @@ public class ServerGUI extends JFrame{
 		}
 	}
 	
+	/**
+	 * Class for selecting and sending files
+	 * @author Gustav
+	 *
+	 */
 	private class FileButton extends JButton implements ActionListener{
+		/**
+		 * Constructor
+		 */
 		public FileButton() {
 			this.setText("Send File");
 			this.addActionListener(this);
 		}
-		
+		/**
+		 * Opens possible target clients
+		 */
 		public void actionPerformed(ActionEvent e) {
 				JFrame tempFrame = new JFrame();
 				tempFrame.setTitle("Server: Choose target client");
@@ -164,11 +221,20 @@ public class ServerGUI extends JFrame{
 		}
 	}
 	
+	/**
+	 * Class for sending file to specific client
+	 * @author Gustav
+	 *
+	 */
 	private class ClientButton extends JButton implements ActionListener{
 		private File myFile;
 		private ClientHandler targetClient;
 		private JFileChooser myFileChooser;
 		
+		/**
+		 * Constructor
+		 * @param a
+		 */
 		public ClientButton(ClientHandler a) {
 			this.targetClient = a;
 			this.setText(targetClient.getClientName());
@@ -176,6 +242,9 @@ public class ServerGUI extends JFrame{
 			myFileChooser = new JFileChooser();
 		}
 		
+		/**
+		 * Ask to send file to target client
+		 */
 		public void actionPerformed(ActionEvent e) {
 			int returnValue = myFileChooser.showOpenDialog(null);
 			String input;
@@ -204,11 +273,6 @@ public class ServerGUI extends JFrame{
 //						tempKey = new String(myKey,"UTF8");
 						tempKey = new String(myKey);
 					}
-				
-//			    	byte[] tempFileArray = new byte[(int)myFile.length()];
-//		    		BufferedInputStream tempBis = new BufferedInputStream(new FileInputStream(myFile));
-//		    		tempBis.read(tempFileArray, 0, tempFileArray.length);
-//		    		tempBis.close();
 					
 					byte[] tempFileArray = Files.readAllBytes(myFile.toPath());
 					

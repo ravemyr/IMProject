@@ -1,6 +1,6 @@
 package project;
 /**
- * Client
+ * FileReceiver
  * 
  * Created 2018-02-19
  */
@@ -16,7 +16,7 @@ import javax.swing.text.*;
 import project.Server.ClientHandler;
 
 /**
- * Class for handling the connection to a server
+ * Class for receiving files
  * @author Gustav
  *
  */
@@ -58,7 +58,8 @@ public class FileReceiver extends Thread{
 				stringArray[4].length()));
 		encryptionType = stringArray[5].substring(5, stringArray[5].length());
 		if (!encryptionType.equals("None")){
-			encryptionKey = stringArray[6].substring(4, stringArray[6].length()-1);
+			encryptionKey = stringArray[6].substring(4, stringArray[6].length()
+					-1);
 		}
 		StringBuilder question = new StringBuilder();
 		question.append(sender);
@@ -77,7 +78,8 @@ public class FileReceiver extends Thread{
 		
 		myFrame = new JFrame();
 		myFrame.setTitle("FileReceiver");
-		myFrame.getContentPane().setLayout(new BoxLayout(myFrame.getContentPane(), BoxLayout.Y_AXIS));
+		myFrame.getContentPane().setLayout(new BoxLayout(
+				myFrame.getContentPane(), BoxLayout.Y_AXIS));
 		
 		myTextPane = new JTextPane();
 		myTextPane.setPreferredSize(new Dimension(400,350));
@@ -108,6 +110,10 @@ public class FileReceiver extends Thread{
 		
     }
     
+    /**
+     * Return port to be used
+     * @return
+     */
     public int getPort() {
     	return usedPort;
     }
@@ -132,13 +138,15 @@ public class FileReceiver extends Thread{
         try {        	
         	byte[] myByteArray = new byte[fileSize];
         	InputStream is = clientSocket.getInputStream();
-        	fos = new FileOutputStream(System.getProperty("user.dir") + "\\" + fileName);    	
+        	fos = new FileOutputStream(System.getProperty("user.dir") + "\\" 
+        			+ fileName);    	
         	bos = new BufferedOutputStream(fos);
         	bytesRead = is.read(myByteArray, 0, myByteArray.length);
         	current = bytesRead;
         	
         	do {
-        		bytesRead = is.read(myByteArray, current, myByteArray.length-current);
+        		bytesRead = is.read(myByteArray, current,
+        				myByteArray.length-current);
         		
         		if (bytesRead >= 0) {
         			current += bytesRead;
@@ -148,7 +156,8 @@ public class FileReceiver extends Thread{
         	
         	if (!encryptionType.equals("None")){
         		System.out.println("FileReceiver: " + encryptionType);
-        		myByteArray = Cryptograph.decryptFile(myByteArray, encryptionType, encryptionKey);
+        		myByteArray = Cryptograph.decryptFile(myByteArray,
+        				encryptionType, encryptionKey);
         	}
         	
         	bos.write(myByteArray, 0, myByteArray.length);
@@ -166,15 +175,29 @@ public class FileReceiver extends Thread{
 		}
     }
     
+    /**
+     * Sets up a server socket and waits for connection
+     * @param port
+     * @throws IOException
+     */
     public void startServer(int port) throws IOException {
         receiveSocket = new ServerSocket(port);
         clientSocket = receiveSocket.accept();
     }
     
+    /**
+     * Returns the ReceiverObservable
+     * @return
+     */
     public ReceiverObservable getObservable() {
     	return myObservable;
     }
     
+    /**
+     * Sends message to observers
+     * @author Gustav
+     *
+     */
     class ReceiverObservable extends Observable{
     	public void sendUpdate(String msg) {
     		setChanged();
@@ -182,12 +205,23 @@ public class FileReceiver extends Thread{
     	}
     }
     
+    /**
+     * Class for accepting file
+     * @author Gustav
+     *
+     */
     private class YesButton extends JButton implements ActionListener{
+    	/**
+    	 * Constructor
+    	 */
     	public YesButton(){
     		this.setText("Yes");
     		this.addActionListener(this);
     	}
-
+    	
+    	/**
+    	 * Accepts file and sends appropriate message to observers
+    	 */
 		public void actionPerformed(ActionEvent arg0) {
 			myYesButton.setEnabled(false);
 			myNoButton.setEnabled(false);
@@ -212,12 +246,22 @@ public class FileReceiver extends Thread{
     	
     }
     
+    /**
+     * Class for rejecting file
+     * @author Gustav
+     *
+     */
     private class NoButton extends JButton implements ActionListener{
+    	/**
+    	 * Constructor
+    	 */
     	public NoButton(){
     		this.setText("No");
     		this.addActionListener(this);
     	}
-
+    	/**
+    	 * Rejects file and sends appropriate message to observers
+    	 */
 		public void actionPerformed(ActionEvent arg0) {
 			String respons = JOptionPane.showInputDialog("Leave reply message");
 			StringBuilder outString = new StringBuilder();

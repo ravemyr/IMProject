@@ -1,4 +1,9 @@
 package project;
+/**
+ * FileSender
+ * 
+ * Created 2018-02-19
+ */
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -10,14 +15,15 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyledDocument;
 
+/**
+ * Class for sending files
+ * @author Gustav
+ *
+ */
 public class FileSender extends Thread{
 	private JFrame myFrame;
 	private Socket clientSocket;
-//	private FileInputStream fis;
-//	private BufferedInputStream bis;
 	private OutputStream os;
-//	private File myFile;
-//	private String myFileName;
 	private byte[] myByteArray;
 	private JTextPane myTextPane;
 	private StyledDocument myDoc;
@@ -25,16 +31,12 @@ public class FileSender extends Thread{
 	private String myEncryptionType;
 	private String myEncryptionKey;
 	
+	/**
+	 * Constructor
+	 * @param inArray
+	 */
 	public FileSender(byte[] inArray) {
-//		myFile = inFile;
-		
-//		myEncryptionType = inType;
-//		myEncryptionKey = inKey;
-//		myByteArray = new byte[(int)myFile.length()];
 		myByteArray = inArray;
-//		fis = new FileInputStream(myFile);
-//		bis = new BufferedInputStream(fis);
-		
 		myFrame = new JFrame();
 		myFrame.setTitle("FileSender");
 		myFrame.getContentPane().setLayout(new BoxLayout(myFrame.getContentPane(), BoxLayout.Y_AXIS));
@@ -48,9 +50,7 @@ public class FileSender extends Thread{
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
-		
-		
-//		myProgressBar = new JProgressBar(0, (int)myFile.length());
+
 		myProgressBar = new JProgressBar(0, myByteArray.length);
 		JScrollPane myScrollPane = new JScrollPane(myTextPane);
 		myScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -65,13 +65,11 @@ public class FileSender extends Thread{
 		
 	}
 	
+	/**
+	 * Starts thread and sending the file
+	 */
 	public void run() {
 		try {
-//			bis.read(myByteArray, 0, myByteArray.length);
-//			if (!myEncryptionType.equals("None")){
-//				System.out.println("FileSender: " + myEncryptionKey);
-//				myByteArray = Cryptograph.encryptFile(myByteArray, myEncryptionType, myEncryptionKey);
-//			}
 			os = clientSocket.getOutputStream();
 			int progress = 0;
 			for (byte b : myByteArray) {
@@ -86,7 +84,6 @@ public class FileSender extends Thread{
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}
-//			os.write(myByteArray, 0, myByteArray.length);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

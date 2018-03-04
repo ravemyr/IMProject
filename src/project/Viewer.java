@@ -21,10 +21,17 @@ public class Viewer {
 	private ArrayList<Tab> myTabList;
 	private ArrayList<DisconnectButton> myButtonList;
 	
+	/**
+	 * Main
+	 * @param args
+	 */
 	public static void main(String[] args){
 		Viewer myViewer = new Viewer();
 	}
 	
+	/**
+	 * Constructor
+	 */
 	public Viewer(){
 		myFrame = new JFrame();
 		myFrame.setTitle("Chat");
@@ -65,6 +72,11 @@ public class Viewer {
 		myFrame.setResizable(false);
 	}
 	
+	/**
+	 * Method for opening new tab and connecting it to some server
+	 * @param IP
+	 * @param port
+	 */
 	public void addTab(String IP, int port) {
 		myTabList.add(new Tab(IP, port));
 		myButtonList.add(new DisconnectButton(myTabList.get(myTabList.size()-1), myTabList.size()-1));
@@ -75,12 +87,23 @@ public class Viewer {
 		myTabPane.addTab("Client", tempPanel);
 	}
 	
+	/**
+	 * Class for adding tabs
+	 * @author Gustav
+	 *
+	 */
 	private class NewTabButton extends JButton implements ActionListener{
+		/**
+		 * Constructor
+		 */
 		public NewTabButton() {
 			this.setText("New Tab");
 			this.addActionListener(this);
 		}
 		
+		/**
+		 * Adds new tab
+		 */
 		public void actionPerformed(ActionEvent e) {
 			String ip = JOptionPane.showInputDialog("Enter IP adress to connect to");
 			int port = Integer.parseInt(JOptionPane.showInputDialog("Enter port to connect to"));
@@ -88,9 +111,19 @@ public class Viewer {
 		}
 	}
 	
+	/**
+	 * Class for disconnecting
+	 * @author Gustav
+	 *
+	 */
 	private class DisconnectButton extends JButton implements ActionListener{
 		private Tab myTab;
 		private int number;
+		/**
+		 * Constructor
+		 * @param inTab
+		 * @param nr
+		 */
 		public DisconnectButton(Tab inTab, int nr) {
 			number = nr;
 			myTab = inTab;
@@ -98,6 +131,9 @@ public class Viewer {
 			this.addActionListener(this);
 		}
 		
+		/**
+		 * Disconnects
+		 */
 		public void actionPerformed(ActionEvent e) {
 			myTab.disconnectTab();
 			myTabPane.remove(number);
@@ -106,7 +142,10 @@ public class Viewer {
 				myButtonList.get(i).setNumber(i);
 			}
 		}
-		
+		/**
+		 * Sets number of tab button disconnects
+		 * @param num
+		 */
 		public void setNumber(int num) {
 			number = num;
 		}

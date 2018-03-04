@@ -31,6 +31,9 @@ public class Server extends Thread{
     	myClientHandlerList = new ArrayList<ClientHandler>();
     }
     
+    /**
+     * Starts server in new thread
+     */
     public void run() {
     	try {
 			this.startServer(myPort);
@@ -41,20 +44,16 @@ public class Server extends Thread{
     
     /**
      * Starting sequence for the server. Creates server socket and
-     * waits for client to connect. Add ClientHandler to list.
+     * waits for client to connect.
      * @param port
      * @throws IOException
      */
     public void startServer(int port) throws IOException {
         serverSocket = new ServerSocket(port);
-//        ClientHandler tempClient;
         ProtoClient tempClient;
 		while (true){
 			tempClient = new ProtoClient(serverSocket.accept());
 			tempClient.start();
-//        	tempClient = new ClientHandler(serverSocket.accept());
-//			tempClient.start();
-//            myClientHandlerList.add(tempClient);
 		}
     }
     
@@ -76,6 +75,10 @@ public class Server extends Thread{
 //        server.start(4000);
 //    }
     
+    /**
+     * Returns the arrayList of clientHandler objects
+     * @return
+     */
     public ArrayList<ClientHandler> getClients(){
     	return myClientHandlerList;
     }
@@ -176,11 +179,21 @@ public class Server extends Thread{
         	}
         }
         
+        /**
+         * Update name of client
+         * @param msg
+         * @return
+         */
         private String updateName(String msg) {
         	String[] tempArray = msg.split("\\s");
         	return tempArray[1].substring(7, tempArray[1].length()-1);
         }
         
+        /**
+         * Observer for observing FileReceiver
+         * @author Gustav
+         *
+         */
     	private class ReceiverObserver implements Observer{
     		public void update(Observable a, Object str) {
     			String tempString = (String) str;
@@ -188,6 +201,9 @@ public class Server extends Thread{
     		}
     	}
     	
+    	/**
+    	 * Kicks client
+    	 */
     	public void closeConnection() {
     		try {
     			out.println("<kick> </kick>");
@@ -205,14 +221,26 @@ public class Server extends Thread{
     		}
     	}
     	
+    	/**
+    	 * Changes client number
+    	 * @param num
+    	 */
     	public void setClientNumber(int num) {
     		clientNumber = num;
     	}
         
+    	/**
+    	 * Make new fileSender
+    	 * @param inArray
+    	 */
         public void setFileSender(byte[] inArray) {
         	myFileSender = new FileSender(inArray);
         }
         
+        /**
+         * Return client name
+         * @return
+         */
         public String getClientName() {
         	return name;
         }
@@ -230,10 +258,19 @@ public class Server extends Thread{
         	}
         }
         
+        /**
+         * Send message to client
+         * @param msg
+         */
         public void sendMessage(String msg) {
         	out.println(msg);
         }
         
+        /**
+         * Verify the type of incoming message
+         * @param msg
+         * @return
+         */
 		public String verifyType(String msg) {
 			String[] stringArray = msg.split("\\s");
 			for (String a : stringArray) {
@@ -263,15 +300,27 @@ public class Server extends Thread{
 		}
     }
     
+    /**
+     * Class for handling clients before they are admitted to the server
+     * @author Gustav
+     *
+     */
     private class ProtoClient extends Thread{
     	private Socket myTempClient;
         private PrintWriter out;
         private BufferedReader in;
         
+        /**
+         * Constructor
+         * @param inSocket
+         */
     	public ProtoClient(Socket inSocket) {
     		myTempClient = inSocket;
     	}
     	
+    	/**
+    	 * Starts new thread for this object and waits for reply
+    	 */
     	public void run() {
             try {
 				out = new PrintWriter(myTempClient.getOutputStream(), true);
@@ -347,6 +396,11 @@ public class Server extends Thread{
 
     	}
     	
+    	/**
+    	 * Verifies the type of incoming message
+    	 * @param msg
+    	 * @return
+    	 */
 		public String verifyType(String msg) {
 			String[] stringArray = msg.split("\\s");
 			for (String a : stringArray) {

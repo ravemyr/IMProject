@@ -465,6 +465,23 @@ public class Tab {
 	    				contains(">"))&&textActive==0)){
 	        		markerArray.add(i);
 	        	}
+	    		else if(textActive==1&&stringArray[i].contains("&#")){
+//	    			String a = stringArray[i].substring(stringArray[i].
+//	    					indexOf("&#"),stringArray[i].indexOf("&#")+2)
+	    			for(int j = 0;j<stringArray[i].length()-4;j++){
+	    				String testify = stringArray[i].substring(j,j+4);
+	    				if(testify.equals("&#38")){
+	    					stringArray[i].replace(stringArray[i].substring(j,j+4), "&");
+	    				}
+	    				else if(testify.equals("&#60")){
+	    					stringArray[i].replace(stringArray[i].substring(j,j+4), "<");
+	    				}
+	    				else if(testify.equals("&#62")){
+	    					stringArray[i].replace(stringArray[i].substring(j,j+4), ">");
+	    				}
+	    				
+	    			}
+	    		}
 	    		else if(stringArray[i].startsWith("</text>")){
 	    			if(i==len-3&&stringArray[len-1].equals("</encrypted>")){
 	    				textActive = 0;

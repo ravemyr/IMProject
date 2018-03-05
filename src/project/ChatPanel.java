@@ -223,7 +223,31 @@ public class ChatPanel extends JPanel{
 			String tempString = myTextArea.getText();
 			Scanner tempScanner = new Scanner(tempString);
 			while(tempScanner.hasNextLine()) {
-				myChatObs.sendUpdate(tempScanner.nextLine());
+				String tempLine = tempScanner.nextLine();
+//				System.out.println(tempLine);
+//				char[] tempArray = tempLine.toCharArray();
+				StringBuilder tempBuilder = new StringBuilder(tempLine);
+				int i = 0;
+				while (i < tempBuilder.length()){
+					if (tempBuilder.charAt(i) == '<'){
+						tempBuilder.replace(i, i+1, "&#60");
+						i += 4;
+					}
+					else if (tempBuilder.charAt(i) == '>'){
+						tempBuilder.replace(i, i+1, "&#62");
+						i += 4;
+					}
+					else if (tempBuilder.charAt(i) == '&'){
+						tempBuilder.replace(i, i+1, "&#38");
+						i += 4;
+					}
+					else{
+						i += 1;
+					}
+				}
+				String newLine = tempBuilder.toString();
+//				System.out.println(newLine);
+				myChatObs.sendUpdate(newLine);
 			}
 			tempScanner.close();
 			myTextArea.setText(null);

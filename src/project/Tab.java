@@ -346,7 +346,7 @@ public class Tab {
 				}
 				else if (verifyStr.equals("text")) {
 					newTempString = verifyMessage(tempString);
-					myDisplayPanel.display(newTempString + "\n", myKeyWord);      //W THIS SHOULD BE KEYWORD FROM ELSEWHERE */ jag Ã¤ndrade lite hÃ¤r /Gustav
+					myDisplayPanel.display(newTempString + "\n", myKeyWord);      //W THIS SHOULD BE KEYWORD FROM ELSEWHERE */ jag ändrade lite här /Gustav
 				}
 				else if (verifyStr.equals("filerespons")) {
 					String[] tempStringArray = tempString.split("\\s");
@@ -465,6 +465,67 @@ public class Tab {
 	    				contains(">"))&&textActive==0)){
 	        		markerArray.add(i);
 	        	}
+	    		else if(textActive==1&&stringArray[i].contains("&#")){
+	    			StringBuilder mBuilder = new StringBuilder(stringArray[i]);
+	    			if (mBuilder.length() == 4){
+	    				if (stringArray[i].equals("&#38")){
+	    					stringArray[i] = "&";
+	    				}
+	    				else if (stringArray[i].equals("&#60")){
+	    					stringArray[i] = "<";
+	    				}
+	    				else if (stringArray[i].equals("&#62")){
+	    					stringArray[i] = ">";
+	    				}	    				
+	    			}else if (mBuilder.length() > 4){
+	    				int k = 0;
+	    	    			while(k < mBuilder.length()){
+	    	    				if (k > mBuilder.length()-4){
+	    	    					break;
+	    	    				}
+	    	    				else{
+		    	    				if (mBuilder.substring(k, k+4).equals("&#38")){
+		    	    					mBuilder.replace(k, k+4, "&");
+//		    	    					k += 4;
+		    	    				}
+		    	    				else if (mBuilder.substring(k, k+4).equals("&#60")){
+		    	    					mBuilder.replace(k, k+4, "<");
+//		    	    					k += 4;
+		    	    				}
+		    	    				else if (mBuilder.substring(k, k+4).equals("&#62")){
+		    	    					mBuilder.replace(k, k+4, ">");
+//		    	    					k += 4;
+		    	    				}		    	    						    	    					
+	    	    				}
+	    	    				k++;
+	    	    			}
+	    	    			stringArray[i] = mBuilder.toString();
+		    		}
+		    	}
+	    			
+
+	    			
+//	    			System.out.println("Reached test");
+//	    			System.out.println("String length: "+stringArray[i].length());
+////	    			String a = stringArray[i].substring(stringArray[i].
+////	    					indexOf("&#"),stringArray[i].indexOf("&#")+2)
+//	    			for(int j = 0;j<stringArray[i].length()-4;j++){
+//	    				System.out.println("Reached test 2");
+//	    				String testify = stringArray[i].substring(j,j+4);
+//	    				System.out.println("testify: "+testify);
+//	    				if(testify.equals("&#38")){
+//	    					System.out.println("Trying to replace &");
+//	    					stringArray[i].replace(stringArray[i].substring(j,j+4), "&");
+//	    				}
+//	    				else if(testify.equals("&#60")){
+//	    					stringArray[i].replace(stringArray[i].substring(j,j+4), "<");
+//	    				}
+//	    				else if(testify.equals("&#62")){
+//	    					stringArray[i].replace(stringArray[i].substring(j,j+4), ">");
+//	    				}
+//	    				
+//	    			}
+//	    		}
 	    		else if(stringArray[i].startsWith("</text>")){
 	    			if(i==len-3&&stringArray[len-1].equals("</encrypted>")){
 	    				textActive = 0;
